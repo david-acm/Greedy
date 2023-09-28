@@ -6,8 +6,18 @@ public class Game {
   public void Start(int gameId) => Apply(new GameStarted(gameId));
 
   private void Apply(object @event) {
+    EnsurePreconditions(@event);
     When(@event);
     this._events.Add(@event);
+  }
+
+  private void EnsurePreconditions(object @event) {
+    var valid = @event switch
+    {
+      GameStarted e => this.State == GameState.None
+    };
+
+    if (!valid) throw new PreconditionsFailedException();
   }
 
   public GameState State { get; private set; }
@@ -40,3 +50,9 @@ public enum GameState {
 }
 
 public record GameStarted(int Id);
+
+public class PreconditionsFailedException : Exception {
+  public PreconditionsFailedException() {
+    
+  }
+}
