@@ -22,6 +22,8 @@ public record Dice(DiceValue DiceOne, DiceValue DiceTwo, DiceValue DiceThree, Di
 }
 
 public static class GameEvents {
+  public record PlayedOutOfTurn(int TriedToPlay, int ExpectedPlayer);
+
   public record GameStarted(int Id);
 
   public record PlayerJoined(int Id, string Name);
