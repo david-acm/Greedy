@@ -27,6 +27,9 @@ public class Game {
         State.GameStage == Started, new GameHasNotStarted(State.GameStage)),
       DiceThrown e => Validate(
         State.PlayerInTurn == e.PlayerId, new PlayedOutOfTurn(e.PlayerId, State.PlayerInTurn)),
+      TurnPassed e => Validate(
+        State.PlayerInTurn == e.PlayerId, 
+        new PlayedOutOfTurn(e.PlayerId, State.PlayerInTurn)),
       
       _ => Validate(false, $"No validation performed for event {@event}")
     };
@@ -66,7 +69,17 @@ public class Game {
       (int)@throw.DiceSix
       ));
   }
+
+  public void Pass(int id) => Apply(new TurnPassed(id, RotatePlayer(id)));
+
+  private ImmutableArray<Player> RotatePlayer(int playerId) {
+    var player = State.GetPlayer(playerId);
+    var newPlayerList = State.Players.Remove(player).Add(player);
+    return newPlayerList;
+  }
 }
+
+public record TurnPassed(int PlayerId, ImmutableArray<Player> RotatedPlayers);
 
 internal record GameAlreadyStarted;
 

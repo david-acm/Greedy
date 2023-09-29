@@ -15,11 +15,16 @@ public record GameState(
       GameStarted e => HandleGameStarted(this, e),
       PlayerJoined e => HandlePlayerJoined(this, e),
       DiceThrown e => HandleDiceThrown(this, e),
+      TurnPassed e => HandleTurnPassed(this, e),
+      
       _ => this
     };
 
     return state;
   }
+
+  private GameState HandleTurnPassed(GameState state, TurnPassed e)
+    => state with { Players = e.RotatedPlayers };
 
   private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown) {
     return gameState with
@@ -34,19 +39,10 @@ public record GameState(
           (DiceValue)diceThrown.Die5,
           (DiceValue)diceThrown.Die6
         ))),
-      Players = RotatePlayer(diceThrown)
     };
   }
-
-  private ImmutableArray<Player> RotatePlayer(DiceThrown diceThrown) {
-    var player = GetPlayer(diceThrown);
-    var newPlayerList = Players.Remove(player).Add(player);
-    return ImmutableArray<Player>.Empty.AddRange(newPlayerList);
-  }
-
-  private Player GetPlayer(DiceThrown diceThrown) {
-    return Players.Single(p => p.Id == diceThrown.PlayerId);
-  }
+  
+  public Player GetPlayer(int id) => Players.Single(p => p.Id == id);
 
   public ImmutableArray<Throw> Throws { get; private set; } = ImmutableArray<Throw>.Empty;
   internal int PlayerInTurn => Players[0].Id;
@@ -57,12 +53,14 @@ public record GameState(
       Players = Players.Add(new Player(playerJoined.Id, playerJoined.Name))
     };
 
-  private GameState HandleGameStarted(GameState gameState, GameStarted e) =>
-    gameState with
-    {
-      Id = e.Id,
-      GameStage = GameStage.Started
-    };
+  private GameState HandleGameStarted(
+    GameState gameState,
+    GameStarted e
+  ) => gameState with
+  {
+    Id = e.Id,
+    GameStage = GameStage.Started
+  };
 }
 
 public record Throw(int PlayerId, Dice Dice);
