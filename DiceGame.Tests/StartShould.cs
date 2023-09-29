@@ -1,5 +1,6 @@
 using FluentAssertions;
-using static DiceGame.GameState;
+using static DiceGame.GameEvents;
+using static DiceGame.GameStage;
 
 namespace DiceGame.Tests;
 
@@ -14,8 +15,8 @@ public class StartShould {
     game.Start(gameId: gameId);
 
     // Assert
-    game.State.Should().Be(Started);
-    game.Id.Should().Be(gameId);
+    game.State.GameStage.Should().Be(Started);
+    game.State.Id.Should().Be(gameId);
   }
 
   [Fact]
@@ -56,7 +57,7 @@ public class LoadShould {
     game.Load(events);
 
     // Assert
-    game.State.Should().Be(Started);
-    game.Id.Should().Be(events[0].Id);
+    game.State.GameStage.Should().Be(Started);
+    game.State.Id.Should().Be(events[0].Id);
   }
 }

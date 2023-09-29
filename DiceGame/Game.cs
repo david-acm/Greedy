@@ -1,58 +1,66 @@
-﻿namespace DiceGame;
+﻿using System.Collections.Immutable;
+
+namespace DiceGame;
 
 public class Game {
   private List<object> _events = new();
 
-  public void Start(int gameId) => Apply(new GameStarted(gameId));
+  public GameState State { get; private set; } =
+    new GameState(0, GameStage.None, ImmutableArray<Player>.Empty);
+
+  public void Start(int gameId) => Apply(new GameEvents.GameStarted(gameId));
 
   private void Apply(object @event) {
     EnsurePreconditions(@event);
-    When(@event);
-    this._events.Add(@event);
+    State = State.When(@event);
+    _events.Add(@event);
   }
 
   private void EnsurePreconditions(object @event) {
     var valid = @event switch
     {
-      GameStarted e => this.State == GameState.None
+      DiceGame.GameEvents.GameStarted => State.GameStage == GameStage.None,
+      DiceGame.GameEvents.PlayerJoined => State.GameStage == GameStage.Started,
+      _ => true
     };
 
     if (!valid) throw new PreconditionsFailedException();
   }
 
-  public GameState State { get; private set; }
   public IReadOnlyList<object> Events => _events.AsReadOnly();
-  public int Id { get; private set; }
 
-  public void Load(GameStarted[] events) {
+  public void Load(GameEvents.GameStarted[] events) {
     foreach (var @event in events)
     {
-      When(@event);
+      State = State.When(@event);
     }
   }
 
-  private void When(object @event) {
-    var action = @event switch
-    {
-      GameStarted e => (Action)(() =>
-      {
-        Id = e.Id;
-        State = GameState.Started;
-      })
-    };
-    action();
+  public void JoinPlayer(int id, string name) {
+    Apply(new GameEvents.PlayerJoined(id, name));
+  }
+
+  public void ThrowDice(int id) {
+    var @throw = Dice.FromNewThrow();
+    Apply(new GameEvents.DiceThrown(id, 
+      (int)@throw.DiceOne,
+      (int)@throw.DiceTwo,
+      (int)@throw.DiceThree,
+      (int)@throw.DiceFour,
+      (int)@throw.DiceFive,
+      (int)@throw.DiceSix
+      ));
   }
 }
 
-public enum GameState {
+public record Player(int Id, string Name);
+
+public enum GameStage {
   None,
   Started
 }
 
-public record GameStarted(int Id);
-
 public class PreconditionsFailedException : Exception {
   public PreconditionsFailedException() {
-    
   }
 }
