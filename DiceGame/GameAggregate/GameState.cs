@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using static DiceGame.GameAggregate.Commands;
 using static DiceGame.GameAggregate.GameEvents;
 
 namespace DiceGame.GameAggregate;
@@ -43,7 +44,13 @@ public record GameState(
     };
 
   private GameState HandleTurnPassed(GameState state, TurnPassed e)
-    => state with { Players = e.RotatedPlayers };
+    => state with
+    {
+      Players = e.RotatedPlayers,
+      _scoreTable = _scoreTable.SetItem(e.PlayerId, GetScore())
+    };
+
+  private int GetScore() => 100;
 
   private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown)
     => gameState with
@@ -59,7 +66,8 @@ public record GameState(
   private GameState HandlePlayerJoined(GameState gameState, PlayerJoined playerJoined)
     => gameState with
     {
-      Players = Players.Add(new Player(playerJoined.Id, playerJoined.Name))
+      Players = Players.Add(new Player(playerJoined.Id, playerJoined.Name)),
+      _scoreTable = _scoreTable.Add(playerJoined.Id, 0)
     };
 
   private GameState HandleGameStarted(
@@ -70,6 +78,11 @@ public record GameState(
     Id = e.Id,
     GameStage = GameStage.Started
   };
+
+  public           Score                     ScoreFor(PlayerId playerId) => new Score(playerId, _scoreTable[playerId]);
+  private ImmutableDictionary<PlayerId, int> _scoreTable = ImmutableDictionary<PlayerId, int>.Empty;
 }
+
+public record Score(PlayerId PlayerId, int Value);
 
 public record Play(int PlayerId, Dice Dice);

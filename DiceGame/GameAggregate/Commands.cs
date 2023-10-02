@@ -1,6 +1,10 @@
 namespace DiceGame.GameAggregate;
 
 public static class Commands {
+  
+  
+  public record Keep(PlayerId PlayerId, IEnumerable<DiceValue> DiceValues);
+  
   public record GameId(int Id) {
     public static implicit operator GameId(int id) => new(id);
   }

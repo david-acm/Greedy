@@ -1,3 +1,4 @@
+using DiceGame.GameAggregate;
 using FluentAssertions;
 using Xunit.Abstractions;
 using static DiceGame.GameAggregate.Commands;
@@ -77,11 +78,11 @@ public class ThrowShould : GameWithThreePlayersTest {
 
     // Act
     Game.ThrowDice(new PlayerId(1));
-    Game.Keep(1, new[] { One });
+    Game.Keep(new Keep(1, new[] { One }));
     SetupDiceToThrow(new List<int>
       { 4, 4, 5, 2, 1, 2 });
     Game.ThrowDice(new PlayerId(1));
-    Game.Keep(1, new[] { Five });
+    Game.Keep(new Keep(1, new[] { Five }));
 
     // Assert
     State.Throws.Should().HaveCount(2);
