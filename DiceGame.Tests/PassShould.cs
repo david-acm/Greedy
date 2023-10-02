@@ -1,9 +1,9 @@
 using FluentAssertions;
+using static DiceGame.GameEvents;
 
 namespace DiceGame.Tests;
 
 public class PassShould {
-  
   [Fact]
   public void AllowPlayerToPass() {
     // Arrange
@@ -16,12 +16,12 @@ public class PassShould {
     game.JoinPlayer(3, "German");
     game.ThrowDice(1);
     game.Pass(1);
-      
+
     // Assert
     game.Events.Where(e => e is TurnPassed)
       .Should().HaveCount(1);
   }
-  
+
   [Fact]
   public void NotAllowPlayerNotInTurnToPass() {
     // Arrange
@@ -38,12 +38,8 @@ public class PassShould {
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
     game.State.Throws.Should().HaveCount(1);
-    var playedOutOfTurn = game.Events
-      .Where(e => e is GameEvents.PlayedOutOfTurn).Should().ContainSingle()
-      .And.Subject;
-    playedOutOfTurn.Should()
-      .Satisfy(e =>
-        ((GameEvents.PlayedOutOfTurn)e).TriedToPlay == 2 &&
-        ((GameEvents.PlayedOutOfTurn)e).ExpectedPlayer == 1);
+    var playedOutOfTurn = game.Events.Should().ContainSingleEvent<PlayedOutOfTurn>();
+    playedOutOfTurn.Should().Be(
+        new PlayedOutOfTurn(2, 1));
   }
 }

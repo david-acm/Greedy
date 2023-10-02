@@ -9,6 +9,11 @@ public record GameState(
   ImmutableArray<Player> Players,
   int PlayerInTurn
 ) {
+  public Play? LastThrow
+  {
+    get { return Throws.LastOrDefault(); }
+  }
+
   public GameState When(object @event) {
     var state = @event switch
     {
@@ -16,11 +21,18 @@ public record GameState(
       PlayerJoined e => HandlePlayerJoined(this, e),
       DiceThrown e => HandleDiceThrown(this, e),
       TurnPassed e => HandleTurnPassed(this, e),
-      
+      DiceKept e => HandleDiceKept(this, e),
       _ => this
     };
 
     return state;
+  }
+
+  private GameState HandleDiceKept(GameState state, DiceKept diceKept) {
+    return state with
+    {
+      DiceKept = DiceKept.AddRange(Dice.FromValues(diceKept.Dice).DiceValues)
+    };
   }
 
   private GameState HandleTurnPassed(GameState state, TurnPassed e)
@@ -29,23 +41,21 @@ public record GameState(
   private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown) {
     return gameState with
     {
-      Throws = Throws.Add(new Throw(
+      Throws = Throws.Add(new Play(
         diceThrown.PlayerId,
-        new Dice(
-          (DiceValue)diceThrown.Die1,
-          (DiceValue)diceThrown.Die2,
-          (DiceValue)diceThrown.Die3,
-          (DiceValue)diceThrown.Die4,
-          (DiceValue)diceThrown.Die5,
-          (DiceValue)diceThrown.Die6
-        ))),
+        new Dice(diceThrown.Dice.Select(d => (DiceValue)d)))),
     };
   }
-  
+
   public Player GetPlayer(int id) => Players.Single(p => p.Id == id);
 
-  public ImmutableArray<Throw> Throws { get; private set; } = ImmutableArray<Throw>.Empty;
+  public ImmutableArray<Play> Throws { get; private set; } = ImmutableArray<Play>.Empty;
+  public ImmutableArray<DiceValue> DiceKept { get; private set; } = ImmutableArray<DiceValue>.Empty;
   internal int PlayerInTurn => Players[0].Id;
+
+  public IEnumerable<DiceValue> TableCenter => LastThrow is null
+    ? ImmutableArray<DiceValue>.Empty
+    : ImmutableArray<DiceValue>.Empty.AddRange(LastThrow.Dice.DiceValues).RemoveRange(DiceKept);
 
   private GameState HandlePlayerJoined(GameState gameState, PlayerJoined playerJoined)
     => gameState with
@@ -63,4 +73,4 @@ public record GameState(
   };
 }
 
-public record Throw(int PlayerId, Dice Dice);
+public record Play(int PlayerId, Dice Dice);

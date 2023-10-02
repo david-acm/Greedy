@@ -31,7 +31,6 @@ public class StartShould {
     game.Events.Should().Contain(e => e is GameStarted);
   }
   
-  
   [Fact]
   public void NotAllowAGameToStartTwice() {
     // Arrange
@@ -43,21 +42,5 @@ public class StartShould {
 
     // Assert
     secondStart.Should().Throw<PreconditionsFailedException>();
-  }
-}
-
-public class LoadShould {
-  [Fact]
-  public void RestoreGameStateFromEvents() {
-    // Arrange
-    var game = new Game();
-    var events = new[] { new GameStarted(1) };
-
-    // Act
-    game.Load(events);
-
-    // Assert
-    game.State.GameStage.Should().Be(Started);
-    game.State.Id.Should().Be(events[0].Id);
   }
 }

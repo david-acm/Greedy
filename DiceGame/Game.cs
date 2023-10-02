@@ -1,11 +1,17 @@
 ﻿using System.Collections.Immutable;
 using static DiceGame.GameEvents;
 using static DiceGame.GameStage;
+using static DiceGame.GameValidator;
 
 namespace DiceGame;
 
 public class Game {
-  private List<object> _events = new();
+  private readonly List<object> _events = new();
+  private IRandom randomProvider;
+
+  public Game(IRandom randomProvider = null) {
+    this.randomProvider = randomProvider ?? new DefaultRandomProvider();
+  }
 
   public GameState State { get; private set; } =
     new GameState(0, None, ImmutableArray<Player>.Empty, 0);
@@ -13,41 +19,23 @@ public class Game {
   public void Start(int gameId) => Apply(new GameStarted(gameId));
 
   private void Apply(object @event) {
-    EnsurePreconditions(@event);
+    try
+    {
+      EnsurePreconditions(this.State, @event);
+    }
+    catch (PreconditionsFailedException e)
+    {
+      _events.Add(e.Event);
+      throw;
+    }
+
     State = State.When(@event);
     _events.Add(@event);
   }
 
-  private void EnsurePreconditions(object @event) {
-    var valid = @event switch
-    {
-      GameStarted e => Validate(
-        State.GameStage == None, new GameAlreadyStarted()),
-      PlayerJoined => Validate(
-        State.GameStage == Started, new GameHasNotStarted(State.GameStage)),
-      DiceThrown e => Validate(
-        State.PlayerInTurn == e.PlayerId, new PlayedOutOfTurn(e.PlayerId, State.PlayerInTurn)),
-      TurnPassed e => Validate(
-        State.PlayerInTurn == e.PlayerId, 
-        new PlayedOutOfTurn(e.PlayerId, State.PlayerInTurn)),
-      
-      _ => Validate(false, $"No validation performed for event {@event}")
-    };
-
-
-    if (valid) return;
-    
-    _events.Add(valid.FailedValidationEvent);
-    throw new PreconditionsFailedException(valid.FailedValidationEvent.ToString()!);
-  }
-
-  private static ValidationResult Validate(bool validation, object failedValidationEvent) {
-    return new ValidationResult(validation, failedValidationEvent);
-  }
-
   public IReadOnlyList<object> Events => _events.AsReadOnly();
 
-  public void Load(GameStarted[] events) {
+  public void Load(IEnumerable<GameStarted> events) {
     foreach (var @event in events)
     {
       State = State.When(@event);
@@ -59,16 +47,16 @@ public class Game {
   }
 
   public void ThrowDice(int id) {
-    var @throw = Dice.FromNewThrow();
-    Apply(new DiceThrown(id, 
-      (int)@throw.DiceOne,
-      (int)@throw.DiceTwo,
-      (int)@throw.DiceThree,
-      (int)@throw.DiceFour,
-      (int)@throw.DiceFive,
-      (int)@throw.DiceSix
-      ));
+    var @throw = Dice.FromNewThrow(
+      randomProvider,
+      IsFirstThrow() ? 6 : 
+      State.TableCenter.Count());
+    Apply(new DiceThrown(id, @throw.DiceValues.Select(d => (int)d).ToArray()
+    ));
   }
+
+  private bool IsFirstThrow() =>
+    !State.Throws.Any();
 
   public void Pass(int id) => Apply(new TurnPassed(id, RotatePlayer(id)));
 
@@ -77,26 +65,24 @@ public class Game {
     var newPlayerList = State.Players.Remove(player).Add(player);
     return newPlayerList;
   }
+
+  public void Keep(int playerId, DiceValue[] diceValues) {
+    Apply(new DiceKept(playerId, diceValues.Select(d => (int)d).ToArray(), RotatePlayer(playerId)));
+  }
 }
+
+public class DefaultRandomProvider : IRandom {
+  public int Next(int minValue, int maxValue) =>
+    (new Random()).Next(minValue, maxValue);
+}
+
+public record DiceKept(int PlayerId, int[] Dice, ImmutableArray<Player> immutableArray);
 
 public record TurnPassed(int PlayerId, ImmutableArray<Player> RotatedPlayers);
-
-internal record GameAlreadyStarted;
-
-internal record GameHasNotStarted(GameStage GameStage);
-
-internal record ValidationResult(bool IsValid, object  FailedValidationEvent) {
-  public static implicit operator bool(ValidationResult result) => result.IsValid;
-}
 
 public record Player(int Id, string Name);
 
 public enum GameStage {
   None,
   Started
-}
-
-public class PreconditionsFailedException : Exception {
-  public PreconditionsFailedException(string reason) : base(reason) {
-  }
 }

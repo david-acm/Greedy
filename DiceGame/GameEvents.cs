@@ -1,24 +1,25 @@
 namespace DiceGame;
 
-public record Dice(DiceValue DiceOne, DiceValue DiceTwo, DiceValue DiceThree, DiceValue DiceFour, DiceValue DiceFive,
-  DiceValue DiceSix) {
-  public static Dice FromNewThrow() {
-    var random = new Random();
+public record Dice(IEnumerable<DiceValue> DiceValues) {
+  public static Dice FromNewThrow(IRandom randomizer, int diceToThrow) {
     var dice = new List<DiceValue>();
-    for (var i = 0; i <= 6; i++)
+    for (var i = 1; i <= diceToThrow; i++)
     {
-      dice.Add((DiceValue)random.Next(1, 6));
+      dice.Add((DiceValue)randomizer.Next(1, 6));
     }
 
-    return new Dice(
-      dice[0],
-      dice[1],
-      dice[2],
-      dice[3],
-      dice[4],
-      dice[5]
-    );
+    return new Dice(dice);
   }
+
+  public static Dice FromValues(IEnumerable<int> values) {
+    var diceList = values.ToList();
+    if (diceList.Count() > 6) throw new ArgumentOutOfRangeException($"Can't throw more than 6 dice. Found: {diceList}");
+    return new Dice(diceList.Select(d => (DiceValue)d));
+  }
+}
+
+public interface IRandom {
+  int Next(int minValue, int maxValue);
 }
 
 public static class GameEvents {
@@ -28,7 +29,7 @@ public static class GameEvents {
 
   public record PlayerJoined(int Id, string Name);
 
-  public record DiceThrown(int PlayerId, int Die1, int Die2, int Die3, int Die4, int Die5, int Die6);
+  public record DiceThrown(int PlayerId, int[] Dice);
 }
 
 public enum DiceValue {
