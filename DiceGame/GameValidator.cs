@@ -65,7 +65,7 @@ public class PlayerHasThoseDice : Validator {
       !unavailable.Any(),
       new DiceNotAllowedToBeKept(
         $"Player Does not have die/dice: {string.Join(',', unavailable)}",
-        unavailable.Select(d => (int)d).ToArray()));
+        unavailable.ToPrimitiveArray()));
   }
 }
 
@@ -84,7 +84,7 @@ public class DiceAreStair : Validator {
                          _dice.Contains(DiceValue.Four) &&
                          _dice.Contains(DiceValue.Five) &&
                          _dice.Contains(DiceValue.Six),
-      new DiceNotAllowedToBeKept("Dice are not a stair", _dice.Select(d => (int)d).ToArray())
+      new DiceNotAllowedToBeKept("Dice are not a stair", _dice.ToPrimitiveArray())
     );
 }
 
@@ -100,8 +100,8 @@ public class DiceAreOnesOrFives : Validator {
   public DiceAreOnesOrFives(Dice dice) => _dice = dice;
 
   public override ValidationResult IsSatisfied() =>
-    new ValidationResult(_dice.DiceValues.All(d => d is DiceValue.One or DiceValue.Five),
-      new DiceNotAllowedToBeKept("Dice are not ones or fives", _dice.DiceValues.Select(d => (int)d).ToArray()));
+    new ValidationResult(_dice.DiceValues.All(d => d == DiceValue.One || d == DiceValue.Five),
+      new DiceNotAllowedToBeKept("Dice are not ones or fives", _dice.DiceValues.ToPrimitiveArray()));
 }
 
 public class DiceAreTrips : Validator {

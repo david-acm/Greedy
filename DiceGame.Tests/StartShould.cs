@@ -1,4 +1,5 @@
 using FluentAssertions;
+using static DiceGame.Commands;
 using static DiceGame.GameEvents;
 using static DiceGame.GameStage;
 
@@ -12,7 +13,7 @@ public class StartShould {
 
     // Act
     var gameId = 1; 
-    game.Start(new GameId(gameId));
+    game.Start(new StartGame(gameId));
 
     // Assert
     game.State.GameStage.Should().Be(Started);
@@ -25,7 +26,7 @@ public class StartShould {
     var game = new Game();
 
     // Act
-    game.Start(new GameId(1));
+    game.Start(new StartGame(1));
 
     // Assert
     game.Events.Should().Contain(e => e is GameStarted);
@@ -37,8 +38,8 @@ public class StartShould {
     var game = new Game();
 
     // Act
-    game.Start(new GameId(1));
-    var secondStart = () => game.Start(new GameId(1));
+    game.Start(new StartGame(1));
+    var secondStart = () => game.Start(new StartGame(1));
 
     // Assert
     secondStart.Should().Throw<PreconditionsFailedException>();

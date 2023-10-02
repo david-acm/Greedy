@@ -9,10 +9,7 @@ public record GameState(
   ImmutableArray<Player> Players,
   int PlayerInTurn
 ) {
-  public Play? LastThrow
-  {
-    get { return Throws.LastOrDefault(); }
-  }
+  public Play? LastThrow => Throws.LastOrDefault();
 
   public GameState When(object @event) {
     var state = @event switch
@@ -38,18 +35,18 @@ public record GameState(
   private GameState HandleTurnPassed(GameState state, TurnPassed e)
     => state with { Players = e.RotatedPlayers };
 
-  private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown) {
-    return gameState with
+  private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown)
+    => gameState with
     {
       Throws = Throws.Add(new Play(
         diceThrown.PlayerId,
-        new Dice(diceThrown.Dice.Select(d => (DiceValue)d)))),
+        new Dice(diceThrown.Dice.ToDiceValues()))),
     };
-  }
 
   public Player GetPlayer(int id) => Players.Single(p => p.Id == id);
 
   public ImmutableArray<Play> Throws { get; private set; } = ImmutableArray<Play>.Empty;
+  
   public ImmutableArray<DiceValue> DiceKept { get; private set; } = ImmutableArray<DiceValue>.Empty;
   internal int PlayerInTurn => Players[0].Id;
 
@@ -57,6 +54,7 @@ public record GameState(
     ? ImmutableArray<DiceValue>.Empty
     : ImmutableArray<DiceValue>.Empty.AddRange(LastThrow.Dice.DiceValues).RemoveRange(DiceKept);
 
+  
   private GameState HandlePlayerJoined(GameState gameState, PlayerJoined playerJoined)
     => gameState with
     {
@@ -71,6 +69,8 @@ public record GameState(
     Id = e.Id,
     GameStage = GameStage.Started
   };
+
+  public bool IsFirstThrow => LastThrow is null;
 }
 
 public record Play(int PlayerId, Dice Dice);

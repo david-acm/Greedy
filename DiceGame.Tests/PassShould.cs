@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Xunit.Abstractions;
+using static DiceGame.Commands;
 using static DiceGame.GameEvents;
 
 namespace DiceGame.Tests;
@@ -11,8 +12,8 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowPlayerToPass() {
     // Act
-    Game.ThrowDice(1);
-    Game.Pass(1);
+    Game.ThrowDice(new PlayerId(1));
+    Game.Pass(new PlayerId(1));
 
     // Assert
     Events.Where(e => e is TurnPassed)
@@ -22,8 +23,8 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void NotAllowPlayerNotInTurnToPass() {
     // Act
-    Game.ThrowDice(1);
-    var action = () => Game.Pass(2);
+    Game.ThrowDice(new PlayerId(1));
+    var action = () => Game.Pass(new PlayerId(2));
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();

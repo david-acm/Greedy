@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Xunit.Abstractions;
+using static DiceGame.Commands;
 using static DiceGame.DiceValue;
 using static DiceGame.GameEvents;
 
@@ -13,7 +14,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void OnlyAllowToKeepByThePlayerInTurn() {
     // Arrange
-    Game.ThrowDice(1);
+    Game.ThrowDice(new PlayerId(1));
     var action = () => Game.Keep(2, new[]
     {
       Five,
@@ -29,7 +30,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void OnlyAllowToKeepFivesAndOnes_WhenThePlayerDidntGetAnyOtherTricks() {
     // Arrange
-    Game.ThrowDice(1);
+    Game.ThrowDice(new PlayerId(1));
     var action = () => Game.Keep(1, new[]
     {
       Four,
@@ -44,13 +45,8 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepTrips() {
     // Arrange
-    var values = new List<int>()
-    {
-      4, 4, 4, 2, 1, 2, 3
-    };
-    SetupDiceToThrow(values);
-
-    Game.ThrowDice(1);
+    SetupDiceToThrow(new List<int>() { 4, 4, 4, 2, 1, 2, 3 });
+    Game.ThrowDice(new PlayerId(1));
 
     var action = () => Game.Keep(1, new[]
     {
@@ -68,11 +64,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepStair() {
     // Arrange
-    var values = new List<int>()
-    {
-      1, 2, 3, 4, 5, 6
-    };
-    SetupDiceToThrow(values);
+    SetupDiceToThrow(new List<int>() { 1, 2, 3, 4, 5, 6 });
     var action = () => Game.Keep(1, new[]
     {
       One,
@@ -84,7 +76,7 @@ public class KeepShould : GameWithThreePlayersTest {
     });
 
     //Act
-    Game.ThrowDice(1);
+    Game.ThrowDice(new PlayerId(1));
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
@@ -95,7 +87,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepOnlyDiceThatWereThrown() {
     // Arrange
-    Game.ThrowDice(1);
+    Game.ThrowDice(new PlayerId(1));
     var diceValues = new[]
     {
       One,
@@ -106,9 +98,9 @@ public class KeepShould : GameWithThreePlayersTest {
       Six,
     };
 
-    var last = State.Throws.Last().Dice.DiceValues;
+    var last = State.LastThrow!.Dice.DiceValues;
 
-    var diceToKeep = diceValues.Where(d => !last.Contains(d)).ToArray();
+    var diceToKeep = diceValues.Where(d => !last.Contains(d));
 
     var action = () => Game.Keep(1, diceToKeep);
 
@@ -127,13 +119,13 @@ public class KeepShould : GameWithThreePlayersTest {
       1, 1, 3, 4, 5, 6
     };
     SetupDiceToThrow(values);
-    Game.ThrowDice(1);
+    Game.ThrowDice(new PlayerId(1));
     var diceValues = new[]
     {
       One,
     };
 
-    var last = State.Throws.Last().Dice.DiceValues;
+    var last = State.LastThrow!.Dice.DiceValues;
 
     var diceToKeep = diceValues.First(d => last.Contains(d) && d == One);
 
@@ -156,7 +148,7 @@ public class KeepShould : GameWithThreePlayersTest {
     var diceToKeep = new[] { One, Five };
 
     //Act
-    Game.ThrowDice(1);
+    Game.ThrowDice(new PlayerId(1));
     var action = () => Game.Keep(1, diceToKeep);
 
     // Assert
