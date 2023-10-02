@@ -1,15 +1,13 @@
 using Ardalis.SmartEnum;
 
-namespace DiceGame;
+namespace DiceGame.GameAggregate;
 
 public record Dice(IEnumerable<DiceValue> DiceValues) {
   public static Dice FromNewThrow(IRandom randomizer, int diceToThrow) {
     var dice = new List<DiceValue>();
     for (var i = 1; i <= diceToThrow; i++)
-    {
       dice.Add(DiceValue.FromValue(randomizer.Next(1,
         6)));
-    }
 
     return new Dice(dice);
   }
@@ -36,17 +34,17 @@ public static class GameEvents {
 }
 
 public sealed class DiceValue : SmartEnum<DiceValue, int> {
-  public static readonly DiceValue One   = new DiceValue("⚀", 1);
+  public static readonly DiceValue One = new("⚀", 1);
 
-  public static readonly DiceValue Two   = new DiceValue("⚁", 2);
+  public static readonly DiceValue Two = new("⚁", 2);
 
-  public static readonly DiceValue Three = new DiceValue("⚂", 3);
+  public static readonly DiceValue Three = new("⚂", 3);
 
-  public static readonly DiceValue Four  = new DiceValue("⚃", 4);
+  public static readonly DiceValue Four = new("⚃", 4);
 
-  public static readonly DiceValue Five  = new DiceValue("⚄", 5);
+  public static readonly DiceValue Five = new("⚄", 5);
 
-  public static readonly DiceValue Six   = new DiceValue("⚅", 6);
+  public static readonly DiceValue Six = new("⚅", 6);
 
   private DiceValue(string name, int value) : base(name,
     value) {

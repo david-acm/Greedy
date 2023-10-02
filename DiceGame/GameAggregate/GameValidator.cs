@@ -1,6 +1,6 @@
-using static DiceGame.GameEvents;
+using static DiceGame.GameAggregate.GameEvents;
 
-namespace DiceGame;
+namespace DiceGame.GameAggregate;
 
 public static class GameValidator {
   public static void EnsurePreconditions(GameState state, object @event) {
@@ -40,21 +40,19 @@ public static class GameValidator {
   private static Dice GetDice(DiceKept e) =>
     Dice.FromValues(e.Dice.ToList());
 
-  private static bool PlayerInTurn(GameState state, int playerId) {
-    return state.PlayerInTurn == playerId;
-  }
+  private static bool PlayerInTurn(GameState state, int playerId) =>
+    state.PlayerInTurn == playerId;
 
-  private static ValidationResult Validate(bool validation, object failedValidationEvent) {
-    return new ValidationResult(validation, failedValidationEvent);
-  }
+  private static ValidationResult Validate(bool validation, object failedValidationEvent) =>
+    new(validation, failedValidationEvent);
 }
 
 public class PlayerHasThoseDice : Validator {
-  private readonly Dice _dice;
+  private readonly Dice      _dice;
   private readonly GameState _state;
 
   public PlayerHasThoseDice(Dice dice, GameState state) {
-    _dice = dice;
+    _dice  = dice;
     _state = state;
   }
 
@@ -77,13 +75,13 @@ public class DiceAreStair : Validator {
   }
 
   public override ValidationResult IsSatisfied() =>
-    new ValidationResult(_dice.Count() == 6 &&
-                         _dice.Contains(DiceValue.One) &&
-                         _dice.Contains(DiceValue.Two) &&
-                         _dice.Contains(DiceValue.Three) &&
-                         _dice.Contains(DiceValue.Four) &&
-                         _dice.Contains(DiceValue.Five) &&
-                         _dice.Contains(DiceValue.Six),
+    new(_dice.Count() == 6              &&
+        _dice.Contains(DiceValue.One)   &&
+        _dice.Contains(DiceValue.Two)   &&
+        _dice.Contains(DiceValue.Three) &&
+        _dice.Contains(DiceValue.Four)  &&
+        _dice.Contains(DiceValue.Five)  &&
+        _dice.Contains(DiceValue.Six),
       new DiceNotAllowedToBeKept("Dice are not a stair", _dice.ToPrimitiveArray())
     );
 }
@@ -97,17 +95,21 @@ public record DiceNotAllowedToBeKept(string Reason, int[] Dice);
 public class DiceAreOnesOrFives : Validator {
   private readonly Dice _dice;
 
-  public DiceAreOnesOrFives(Dice dice) => _dice = dice;
+  public DiceAreOnesOrFives(Dice dice) {
+    _dice = dice;
+  }
 
   public override ValidationResult IsSatisfied() =>
-    new ValidationResult(_dice.DiceValues.All(d => d == DiceValue.One || d == DiceValue.Five),
+    new(_dice.DiceValues.All(d => d == DiceValue.One || d == DiceValue.Five),
       new DiceNotAllowedToBeKept("Dice are not ones or fives", _dice.DiceValues.ToPrimitiveArray()));
 }
 
 public class DiceAreTrips : Validator {
   private readonly Dice _dice;
 
-  public DiceAreTrips(Dice dice) => _dice = dice;
+  public DiceAreTrips(Dice dice) {
+    _dice = dice;
+  }
 
   public override ValidationResult IsSatisfied() =>
     new(AreThree(_dice) && AllDiceHaveTheSameValue(_dice), $"The dice {_dice} are not trips.");
@@ -118,11 +120,11 @@ public class DiceAreTrips : Validator {
 }
 
 public class PlayerIsInTurn : Validator {
+  private readonly int       _playerId;
   private readonly GameState _state;
-  private readonly int _playerId;
 
   public PlayerIsInTurn(GameState state, int playerId) {
-    _state = state;
+    _state    = state;
     _playerId = playerId;
   }
 

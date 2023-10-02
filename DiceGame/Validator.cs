@@ -4,11 +4,10 @@ public abstract class Validator {
   public abstract ValidationResult IsSatisfied();
 
   public OrValidator Or(Validator validator) =>
-    new OrValidator(this, validator);
+    new(this, validator);
 
-  public AndValidator And(Validator validator) {
-    return new AndValidator(this, validator);
-  }
+  public AndValidator And(Validator validator) =>
+    new(this, validator);
 }
 
 public class AndValidator : Validator {
@@ -16,7 +15,7 @@ public class AndValidator : Validator {
   private readonly Validator _right;
 
   public AndValidator(Validator left, Validator right) {
-    _left = left;
+    _left  = left;
     _right = right;
   }
 
@@ -35,14 +34,14 @@ public class OrValidator : Validator {
   private readonly Validator _right;
 
   public OrValidator(Validator left, Validator right) {
-    _left = left;
+    _left  = left;
     _right = right;
   }
 
   public override ValidationResult IsSatisfied() {
     if (_left.IsSatisfied() || _right.IsSatisfied())
       return new ValidationResult(true, string.Empty);
-    
+
     if (!_left.IsSatisfied())
       return _left.IsSatisfied() with { IsValid = _right.IsSatisfied() };
 

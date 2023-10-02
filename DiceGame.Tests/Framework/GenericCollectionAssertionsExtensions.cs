@@ -1,7 +1,7 @@
 using FluentAssertions;
 using FluentAssertions.Collections;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Framework;
 
 public static class GenericCollectionAssertionsExtensions {
   public static TEvent? ContainSingleEvent<TEvent>(

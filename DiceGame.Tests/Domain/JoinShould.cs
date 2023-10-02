@@ -1,8 +1,9 @@
+using DiceGame.GameAggregate;
 using FluentAssertions;
-using static DiceGame.Commands;
-using static DiceGame.GameEvents;
+using static DiceGame.GameAggregate.Commands;
+using static DiceGame.GameAggregate.GameEvents;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Domain;
 
 public class JoinShould {
   [Fact]

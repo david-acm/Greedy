@@ -1,10 +1,10 @@
 using FluentAssertions;
 using Xunit.Abstractions;
-using static DiceGame.Commands;
-using static DiceGame.DiceValue;
-using static DiceGame.GameEvents;
+using static DiceGame.GameAggregate.Commands;
+using static DiceGame.GameAggregate.DiceValue;
+using static DiceGame.GameAggregate.GameEvents;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Domain;
 
 public class ThrowShould : GameWithThreePlayersTest {
   public ThrowShould(ITestOutputHelper output) : base(output) {
@@ -50,7 +50,8 @@ public class ThrowShould : GameWithThreePlayersTest {
   public void NotAllowNextPlayerToPlayUntilPlayerPasses() {
     // Act
     Game.ThrowDice(new PlayerId(1));
-    SetupDiceToThrow(new List<int>() { 4, 4, 4, 2, 1, 2, 3 });
+    SetupDiceToThrow(new List<int>
+      { 4, 4, 4, 2, 1, 2, 3 });
 
     var action = () => Game.ThrowDice(new PlayerId(2));
 
@@ -71,12 +72,14 @@ public class ThrowShould : GameWithThreePlayersTest {
   [Fact]
   public void ThrowOnlyAvailableDiceAtTheTableCenter() {
     // Arrange
-    SetupDiceToThrow(new List<int>() { 4, 4, 5, 2, 1, 2, 3 });
+    SetupDiceToThrow(new List<int>
+      { 4, 4, 5, 2, 1, 2, 3 });
 
     // Act
     Game.ThrowDice(new PlayerId(1));
     Game.Keep(1, new[] { One });
-    SetupDiceToThrow(new List<int>() { 4, 4, 5, 2, 1, 2 });
+    SetupDiceToThrow(new List<int>
+      { 4, 4, 5, 2, 1, 2 });
     Game.ThrowDice(new PlayerId(1));
     Game.Keep(1, new[] { Five });
 

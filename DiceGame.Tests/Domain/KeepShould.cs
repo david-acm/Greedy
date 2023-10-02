@@ -1,10 +1,12 @@
+using DiceGame.GameAggregate;
+using DiceGame.Tests.Framework;
 using FluentAssertions;
 using Xunit.Abstractions;
-using static DiceGame.Commands;
-using static DiceGame.DiceValue;
-using static DiceGame.GameEvents;
+using static DiceGame.GameAggregate.Commands;
+using static DiceGame.GameAggregate.DiceValue;
+using static DiceGame.GameAggregate.GameEvents;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Domain;
 
 public class KeepShould : GameWithThreePlayersTest {
   public KeepShould(ITestOutputHelper helper)
@@ -18,7 +20,7 @@ public class KeepShould : GameWithThreePlayersTest {
     var action = () => Game.Keep(2, new[]
     {
       Five,
-      One,
+      One
     });
 
     //Act
@@ -33,7 +35,7 @@ public class KeepShould : GameWithThreePlayersTest {
     Game.ThrowDice(new PlayerId(1));
     var action = () => Game.Keep(1, new[]
     {
-      Four,
+      Four
     });
 
     //Act
@@ -45,14 +47,15 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepTrips() {
     // Arrange
-    SetupDiceToThrow(new List<int>() { 4, 4, 4, 2, 1, 2, 3 });
+    SetupDiceToThrow(new List<int>
+      { 4, 4, 4, 2, 1, 2, 3 });
     Game.ThrowDice(new PlayerId(1));
 
     var action = () => Game.Keep(1, new[]
     {
       Four,
       Four,
-      Four,
+      Four
     });
 
     //Act
@@ -64,7 +67,8 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepStair() {
     // Arrange
-    SetupDiceToThrow(new List<int>() { 1, 2, 3, 4, 5, 6 });
+    SetupDiceToThrow(new List<int>
+      { 1, 2, 3, 4, 5, 6 });
     var action = () => Game.Keep(1, new[]
     {
       One,
@@ -72,7 +76,7 @@ public class KeepShould : GameWithThreePlayersTest {
       Three,
       Four,
       Five,
-      Six,
+      Six
     });
 
     //Act
@@ -95,7 +99,7 @@ public class KeepShould : GameWithThreePlayersTest {
       Three,
       Four,
       Five,
-      Six,
+      Six
     };
 
     var last = State.LastThrow!.Dice.DiceValues;
@@ -114,7 +118,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepOnlyDiceThatAreStillInTheTable() {
     // Arrange
-    var values = new List<int>()
+    var values = new List<int>
     {
       1, 1, 3, 4, 5, 6
     };
@@ -122,7 +126,7 @@ public class KeepShould : GameWithThreePlayersTest {
     Game.ThrowDice(new PlayerId(1));
     var diceValues = new[]
     {
-      One,
+      One
     };
 
     var last = State.LastThrow!.Dice.DiceValues;
@@ -144,7 +148,8 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void RemoveDiceFromTableCenter() {
     // Arrange
-    SetupDiceToThrow(new List<int>() { 1, 2, 3, 4, 5, 6 });
+    SetupDiceToThrow(new List<int>
+      { 1, 2, 3, 4, 5, 6 });
     var diceToKeep = new[] { One, Five };
 
     //Act

@@ -1,9 +1,10 @@
+using DiceGame.GameAggregate;
 using FluentAssertions;
-using static DiceGame.Commands;
-using static DiceGame.GameEvents;
-using static DiceGame.GameStage;
+using static DiceGame.GameAggregate.Commands;
+using static DiceGame.GameAggregate.GameEvents;
+using static DiceGame.GameAggregate.GameStage;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Domain;
 
 public class StartShould {
   [Fact]
@@ -12,7 +13,7 @@ public class StartShould {
     var game = new Game();
 
     // Act
-    var gameId = 1; 
+    var gameId = 1;
     game.Start(new StartGame(gameId));
 
     // Assert
@@ -31,7 +32,7 @@ public class StartShould {
     // Assert
     game.Events.Should().Contain(e => e is GameStarted);
   }
-  
+
   [Fact]
   public void NotAllowAGameToStartTwice() {
     // Arrange

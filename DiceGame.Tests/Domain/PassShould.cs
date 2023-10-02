@@ -1,9 +1,11 @@
+using DiceGame.GameAggregate;
+using DiceGame.Tests.Framework;
 using FluentAssertions;
 using Xunit.Abstractions;
-using static DiceGame.Commands;
-using static DiceGame.GameEvents;
+using static DiceGame.GameAggregate.Commands;
+using static DiceGame.GameAggregate.GameEvents;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Domain;
 
 public class PassShould : GameWithThreePlayersTest {
   public PassShould(ITestOutputHelper output) : base(output) {
@@ -17,7 +19,8 @@ public class PassShould : GameWithThreePlayersTest {
 
     // Assert
     Events.Where(e => e is TurnPassed)
-      .Should().HaveCount(1);
+      .Should()
+      .HaveCount(1);
   }
 
   [Fact]
@@ -30,7 +33,8 @@ public class PassShould : GameWithThreePlayersTest {
     action.Should().Throw<PreconditionsFailedException>();
     State.Throws.Should().HaveCount(1);
     var playedOutOfTurn = Events.Should().ContainSingleEvent<PlayedOutOfTurn>();
-    playedOutOfTurn.Should().Be(
+    playedOutOfTurn.Should()
+      .Be(
         new PlayedOutOfTurn(2, 1));
   }
 }

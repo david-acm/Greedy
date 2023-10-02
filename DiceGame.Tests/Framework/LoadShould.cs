@@ -1,12 +1,13 @@
+using DiceGame.GameAggregate;
 using FluentAssertions;
 
-namespace DiceGame.Tests;
+namespace DiceGame.Tests.Framework;
 
 public class LoadShould {
   [Fact]
   public void RestoreGameStateFromEvents() {
     // Arrange
-    var game = new Game();
+    var game   = new Game();
     var events = new[] { new GameEvents.GameStarted(1) };
 
     // Act
