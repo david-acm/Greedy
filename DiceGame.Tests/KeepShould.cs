@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Moq;
 using Xunit.Abstractions;
 using static DiceGame.DiceValue;
 using static DiceGame.GameEvents;
@@ -7,9 +6,8 @@ using static DiceGame.GameEvents;
 namespace DiceGame.Tests;
 
 public class KeepShould : GameWithThreePlayersTest {
-
-  public KeepShould(ITestOutputHelper helper) 
-  : base(helper){
+  public KeepShould(ITestOutputHelper helper)
+    : base(helper) {
   }
 
   [Fact]
@@ -24,7 +22,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     //Act
     action.Should().Throw<PreconditionsFailedException>();
-    Game.Events.Should()
+    Events.Should()
       .ContainSingleEvent<PlayedOutOfTurn>();
   }
 
@@ -39,7 +37,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     //Act
     action.Should().Throw<PreconditionsFailedException>();
-    Game.Events.Should()
+    Events.Should()
       .ContainSingleEvent<DiceNotAllowedToBeKept>();
   }
 
@@ -63,7 +61,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     //Act
     action.Should().NotThrow<PreconditionsFailedException>();
-    Game.Events.Should()
+    Events.Should()
       .NotContainAnyEvent<DiceNotAllowedToBeKept>();
   }
 
@@ -90,7 +88,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
-    Game.Events.Should()
+    Events.Should()
       .NotContainAnyEvent<DiceNotAllowedToBeKept>();
   }
 
@@ -108,7 +106,7 @@ public class KeepShould : GameWithThreePlayersTest {
       Six,
     };
 
-    var last = Game.State.Throws.Last().Dice.DiceValues;
+    var last = State.Throws.Last().Dice.DiceValues;
 
     var diceToKeep = diceValues.Where(d => !last.Contains(d)).ToArray();
 
@@ -116,7 +114,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     //Act
     action.Should().Throw<PreconditionsFailedException>();
-    Game.Events.Should()
+    Events.Should()
       .ContainSingleEvent<DiceNotAllowedToBeKept>();
   }
 
@@ -135,19 +133,19 @@ public class KeepShould : GameWithThreePlayersTest {
       One,
     };
 
-    var last = Game.State.Throws.Last().Dice.DiceValues;
+    var last = State.Throws.Last().Dice.DiceValues;
 
     var diceToKeep = diceValues.First(d => last.Contains(d) && d == One);
 
     Game.Keep(1, new[] { diceToKeep });
 
-    diceToKeep = Game.State.DiceKept.First();
+    diceToKeep = State.DiceKept.First();
 
     var action = () => Game.Keep(1, new[] { diceToKeep });
 
     //Act
     action.Should().NotThrow<PreconditionsFailedException>();
-    Game.Events.Should()
+    Events.Should()
       .NotContainAnyEvent<DiceNotAllowedToBeKept>();
   }
 
@@ -163,6 +161,6 @@ public class KeepShould : GameWithThreePlayersTest {
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
-    Game.State.TableCenter.Should().HaveCount(4);
+    State.TableCenter.Should().HaveCount(4);
   }
 }

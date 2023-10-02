@@ -13,7 +13,7 @@ public record Dice(IEnumerable<DiceValue> DiceValues) {
 
   public static Dice FromValues(IEnumerable<int> values) {
     var diceList = values.ToList();
-    if (diceList.Count() > 6) throw new ArgumentOutOfRangeException($"Can't throw more than 6 dice. Found: {diceList}");
+    if (diceList.Count > 6) throw new ArgumentOutOfRangeException($"Can't throw more than 6 dice. Found: {diceList}");
     return new Dice(diceList.Select(d => (DiceValue)d));
   }
 }

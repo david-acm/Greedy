@@ -12,7 +12,7 @@ public class StartShould {
 
     // Act
     var gameId = 1; 
-    game.Start(gameId: gameId);
+    game.Start(new GameId(gameId));
 
     // Assert
     game.State.GameStage.Should().Be(Started);
@@ -25,7 +25,7 @@ public class StartShould {
     var game = new Game();
 
     // Act
-    game.Start(gameId: 1);
+    game.Start(new GameId(1));
 
     // Assert
     game.Events.Should().Contain(e => e is GameStarted);
@@ -37,8 +37,8 @@ public class StartShould {
     var game = new Game();
 
     // Act
-    game.Start(gameId: 1);
-    var secondStart = () => game.Start(gameId: 1);
+    game.Start(new GameId(1));
+    var secondStart = () => game.Start(new GameId(1));
 
     // Assert
     secondStart.Should().Throw<PreconditionsFailedException>();

@@ -5,18 +5,26 @@ using static DiceGame.GameValidator;
 
 namespace DiceGame;
 
+public class GameId {
+  public GameId(int gameId) {
+    GameId1 = gameId;
+  }
+
+  public int GameId1 { get; private set; }
+}
+
 public class Game {
   private readonly List<object> _events = new();
-  private IRandom randomProvider;
+  private readonly IRandom _randomProvider;
 
   public Game(IRandom randomProvider = null) {
-    this.randomProvider = randomProvider ?? new DefaultRandomProvider();
+    this._randomProvider = randomProvider ?? new DefaultRandomProvider();
   }
 
   public GameState State { get; private set; } =
     new GameState(0, None, ImmutableArray<Player>.Empty, 0);
 
-  public void Start(int gameId) => Apply(new GameStarted(gameId));
+  public void Start(GameId gameId) => Apply(new GameStarted(gameId.GameId1));
 
   private void Apply(object @event) {
     try
@@ -48,7 +56,7 @@ public class Game {
 
   public void ThrowDice(int id) {
     var @throw = Dice.FromNewThrow(
-      randomProvider,
+      _randomProvider,
       IsFirstThrow() ? 6 : 
       State.TableCenter.Count());
     Apply(new DiceThrown(id, @throw.DiceValues.Select(d => (int)d).ToArray()

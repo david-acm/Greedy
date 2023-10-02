@@ -10,7 +10,7 @@ public class JoinShould {
     var game = new Game();
 
     // Act
-    game.Start(1);
+    game.Start(new GameId(1));
     game.JoinPlayer(1, "David");
     game.JoinPlayer(2, "Cristian");
 

@@ -1,4 +1,3 @@
-using static DiceGame.AllValidator;
 using static DiceGame.GameEvents;
 
 namespace DiceGame;
@@ -8,7 +7,7 @@ public static class GameValidator {
     var valid = @event switch
     {
       GameStarted e => Validate(
-        state.GameStage == GameStage.None, new GameAlreadyStarted()),
+        state.GameStage == GameStage.None, new GameAlreadyStarted(e.Id)),
       PlayerJoined => Validate(
         state.GameStage == GameStage.Started, new GameHasNotStarted(state.GameStage)),
       DiceThrown e => Validate(
@@ -71,25 +70,25 @@ public class PlayerHasThoseDice : Validator {
 }
 
 public class DiceAreStair : Validator {
-  private readonly IEnumerable<DiceValue> dice;
+  private readonly IEnumerable<DiceValue> _dice;
 
   public DiceAreStair(Dice fromValues) {
-    dice = fromValues.DiceValues;
+    _dice = fromValues.DiceValues;
   }
 
   public override ValidationResult IsSatisfied() =>
-    new ValidationResult(dice.Count() == 6 &&
-                         dice.Contains(DiceValue.One) &&
-                         dice.Contains(DiceValue.Two) &&
-                         dice.Contains(DiceValue.Three) &&
-                         dice.Contains(DiceValue.Four) &&
-                         dice.Contains(DiceValue.Five) &&
-                         dice.Contains(DiceValue.Six),
-      new DiceNotAllowedToBeKept("Dice are not a stair", dice.Select(d => (int)d).ToArray())
+    new ValidationResult(_dice.Count() == 6 &&
+                         _dice.Contains(DiceValue.One) &&
+                         _dice.Contains(DiceValue.Two) &&
+                         _dice.Contains(DiceValue.Three) &&
+                         _dice.Contains(DiceValue.Four) &&
+                         _dice.Contains(DiceValue.Five) &&
+                         _dice.Contains(DiceValue.Six),
+      new DiceNotAllowedToBeKept("Dice are not a stair", _dice.Select(d => (int)d).ToArray())
     );
 }
 
-internal record GameAlreadyStarted;
+internal record GameAlreadyStarted(int Id);
 
 internal record GameHasNotStarted(GameStage GameStage);
 
