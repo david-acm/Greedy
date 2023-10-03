@@ -7,8 +7,7 @@ namespace DiceGame.GameAggregate;
 public record GameState(
   int                    Id,
   GameStage              GameStage,
-  ImmutableArray<Player> Players,
-  int                    PlayerInTurn
+  ImmutableArray<Player> Players
 ) {
   public Play? LastThrow => Throws.LastOrDefault();
 
@@ -17,9 +16,17 @@ public record GameState(
   public   ImmutableArray<DiceValue> DiceKept     { get; private set; } = ImmutableArray<DiceValue>.Empty;
   internal int                       PlayerInTurn => Players[0].Id;
 
-  public IEnumerable<DiceValue> TableCenter => LastThrow is null
-    ? ImmutableArray<DiceValue>.Empty
-    : ImmutableArray<DiceValue>.Empty.AddRange(LastThrow.Dice.DiceValues).RemoveRange(DiceKept);
+  public IEnumerable<DiceValue> TableCenter
+  {
+    get
+    {
+      var @throw = ImmutableArray<DiceValue>.Empty.AddRange(LastThrow.Dice.DiceValues);
+      DiceKept.ToList().ForEach(k => @throw = @throw.Remove(k));
+      return LastThrow is null
+        ? ImmutableArray<DiceValue>.Empty
+        : @throw;
+    }
+  }
 
   public bool IsFirstThrow => LastThrow is null;
 
@@ -41,25 +48,33 @@ public record GameState(
     state with
     {
       DiceKept = DiceKept.AddRange(Dice.FromValues(diceKept.Dice).DiceValues),
-      _scoreTable = _scoreTable.SetItem(diceKept.PlayerId, GetScore(diceKept))
+      TurnScore = GetScore(diceKept, TurnScore)
     };
 
   private GameState HandleTurnPassed(GameState state, TurnPassed e)
     => state with
     {
       Players = e.RotatedPlayers,
+      _scoreTable = _scoreTable.SetItem(
+        PlayerInTurn, 
+        _scoreTable[PlayerInTurn] + TurnScore)
     };
 
-  private static int GetScore(DiceKept diceKept) {
+  private static Score GetScore(DiceKept diceKept, int currentScore) {
     var dice = Dice.FromValues(diceKept.Dice);
     var tricks = new Dictionary<Validator, int>
     {
-      { new DiceAreTrips(dice), dice.DiceValues.First().Value                             * 100 },
-      { new DiceAreOnesOrFives(dice), dice.DiceValues.Count(d => d == DiceValue.One) * 100 + dice.DiceValues.Count(d => d == DiceValue.Five) * 50 },
+      { new DiceAreTrips(dice), dice.DiceValues.First().Value * 100 },
+      {
+        new DiceAreOnesOrFives(dice),
+        dice.DiceValues.Count(d => d == DiceValue.One) * 100 + dice.DiceValues.Count(d => d == DiceValue.Five) * 50
+      },
       { new DiceAreStair(dice), 1500 }
     };
 
-    return tricks.First(v => v.Key.IsSatisfied()).Value;
+    var turnScore = tricks.First(v => v.Key.IsSatisfied()).Value;
+
+    return new Score(currentScore + turnScore);
   }
 
   private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown)
@@ -68,8 +83,14 @@ public record GameState(
       Throws = Throws.Add(new Play(
         diceThrown.PlayerId,
         new Dice(diceThrown.Dice.ToDiceValues()))),
-      _scoreTable = _scoreTable.SetItem(diceThrown.PlayerId, new CanKeepDice(new Dice(diceThrown.Dice.ToDiceValues())).IsSatisfied() ? _scoreTable[diceThrown.PlayerId] : 0)
+      TurnScore = ResetScoreWhenGreedy(diceThrown)
     };
+
+  private Score ResetScoreWhenGreedy(DiceThrown diceThrown) {
+    var canKeepAnyDice = new CanKeepDice(new Dice(diceThrown.Dice.ToDiceValues())).IsSatisfied();
+
+    return canKeepAnyDice ? TurnScore : new Score(0);
+  }
 
   public Player GetPlayer(int id) => Players.Single(p => p.Id == id);
 
@@ -90,10 +111,15 @@ public record GameState(
     GameStage = GameStage.Started
   };
 
-  public  Score                              TurnScoreFor(PlayerId playerId) => new Score(playerId, _scoreTable[playerId]);
-  private ImmutableDictionary<PlayerId, int> _scoreTable = ImmutableDictionary<PlayerId, int>.Empty;
+  public Score TurnScore { get; private set; } = new(0);
+
+  private ImmutableDictionary<PlayerId, int> _scoreTable         = ImmutableDictionary<PlayerId, int>.Empty;
+
+  public Score GameScoreFor(PlayerId playerId) => new(_scoreTable[playerId]);
 }
 
-public record Score(PlayerId PlayerId, int Value);
+public record Score(int Value) {
+  public static implicit operator int(Score score) => score.Value;
+}
 
 public record Play(int PlayerId, Dice Dice);

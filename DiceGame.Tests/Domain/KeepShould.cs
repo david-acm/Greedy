@@ -171,17 +171,14 @@ public class KeepShould : GameWithThreePlayersTest {
     int         expectedScore) {
     // Arrange
     SetupDiceToThrow(rolledDice);
-
-    // Act
     Game.ThrowDice(new PlayerId(1));
     var action = () => Game.Keep(new Keep(1, diceToKeep));
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
-    var score = State.TurnScoreFor(new PlayerId(1));
-    score.Should()
-      .Be(new Score(new PlayerId(1), expectedScore),
-        $"{reason} but got {score}");
+    State.TurnScore.Should()
+      .Be(new Score(expectedScore),
+        $"{reason} but got {State.TurnScore}");
   }
 
   [Fact]
@@ -189,7 +186,6 @@ public class KeepShould : GameWithThreePlayersTest {
     // Arrange
     SetupDiceToThrow(new List<int>
       { 1, 2, 3, 4, 5, 6 });
-    // Act
     Game.ThrowDice(new PlayerId(1));
     Game.Keep(new Keep(1, new[] { One }));
     
@@ -198,9 +194,24 @@ public class KeepShould : GameWithThreePlayersTest {
     Game.ThrowDice(new PlayerId(1));
     
     // Assert
-    var score = State.TurnScoreFor(new PlayerId(1));
-    score.Should()
-      .Be(new Score(new PlayerId(1), 0));
+    State.TurnScore.Should()
+      .Be(new Score(0));
+  }
+  
+  [Fact]
+  public void AddToTurnScore() {
+    // Arrange
+    SetupDiceToThrow(new List<int> { 1, 2, 3, 4, 5, 6 });
+    Game.ThrowDice(new PlayerId(1));
+    Game.Keep(new Keep(1, new[] { One }));
+    
+    SetupDiceToThrow(new List<int> { 1, 1, 3, 3, 4 });
+    Game.ThrowDice(new PlayerId(1));
+    Game.Keep(new Keep(1, new[] { One }));
+    
+    // Assert
+    State.TurnScore.Should()
+      .Be(new Score(200));
   }
 
   public static IEnumerable<object[]> TricksAndScore() {

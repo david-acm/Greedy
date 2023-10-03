@@ -38,4 +38,22 @@ public class PassShould : GameWithThreePlayersTest {
       .Be(
         new PlayedOutOfTurn(2, 1));
   }
+  
+  [Fact]
+  public void AddToGameScoreIfPlayerKeptTricks() {
+    // Arrange
+    SetupDiceToThrow(new List<int> { 1, 2, 3, 4, 5, 6 });
+    Game.ThrowDice(new PlayerId(1));
+    Game.Keep(new Keep(1, new[] { One }));
+    
+    SetupDiceToThrow(new List<int> { 2, 2, 2, 4, 5, 6 });
+    Game.ThrowDice(new PlayerId(1));
+    Game.Keep(new Keep(1, new[] { Two, Two, Two }));
+    Game.Pass(1);
+    
+    // Assert
+    var score = State.GameScoreFor(new PlayerId(1));
+    score.Should()
+      .Be(new Score(300));
+  }
 }

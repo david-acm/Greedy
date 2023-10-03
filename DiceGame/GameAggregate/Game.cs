@@ -6,7 +6,6 @@ using static DiceGame.GameAggregate.GameValidator;
 
 namespace DiceGame.GameAggregate;
 
-
 public class Game {
   private readonly List<object> _events = new();
   private readonly IRandom      _randomProvider;
@@ -15,7 +14,7 @@ public class Game {
     _randomProvider = randomProvider ?? new DefaultRandomProvider();
   }
 
-  public GameState State { get; private set; } = new(0, None, ImmutableArray<Player>.Empty, 0);
+  public GameState State { get; private set; } = new(0, None, ImmutableArray<Player>.Empty);
 
   public IReadOnlyList<object> Events => _events.AsReadOnly();
 
@@ -47,7 +46,7 @@ public class Game {
     Apply(new DiceKept(keep.PlayerId, keep.DiceValues.ToPrimitiveArray()));
 
   private int GetNumberOfDiceToTrow() =>
-    State.IsFirstThrow ? 6 : State.TableCenter.Count();
+    State.IsFirstThrow ? 6 : 6 - State.DiceKept.Length;
 
   private void Apply(object @event) {
     try
