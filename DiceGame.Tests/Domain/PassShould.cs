@@ -38,19 +38,4 @@ public class PassShould : GameWithThreePlayersTest {
       .Be(
         new PlayedOutOfTurn(2, 1));
   }
-
-  [Fact]
-  public void AddScoreToPlayer() {
-    // Arrange
-    SetupDiceToThrow(new List<int>() { 1, 2, 3, 4, 5, 6 });
-    
-    // Act
-    Game.ThrowDice(new PlayerId(1));
-    Game.Keep(new Keep(1, new[] { One }));
-    var action = () => Game.Pass(new PlayerId(1));
-
-    // Assert
-    action.Should().NotThrow<PreconditionsFailedException>();
-    State.ScoreFor(new PlayerId(1)).Should().Be(new Score(new PlayerId(1), 100));
-  }
 }

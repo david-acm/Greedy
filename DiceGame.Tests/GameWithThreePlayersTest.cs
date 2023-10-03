@@ -33,8 +33,8 @@ public class GameWithThreePlayersTest {
   protected IReadOnlyList<object> Events => Game.Events;
 
 
-  protected void SetupDiceToThrow(List<int> values) {
-    _enumerator = values.GetEnumerator();
+  protected void SetupDiceToThrow(IEnumerable<int> values) {
+    _enumerator = values.ToList().GetEnumerator();
     Mock.Get(_randomProvider)
       .Setup(s => s.Next(It.IsAny<int>(), It.IsAny<int>()))
       .Returns(() =>

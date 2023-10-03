@@ -31,7 +31,7 @@ public class Game {
     Apply(new DiceThrown(playerId, @throw.DiceValues.ToPrimitiveArray()));
   }
 
-  public void Pass(PlayerId id) => Apply(new TurnPassed(id, RotatePlayer(id)));
+  public void Pass(PlayerId playerId) => Apply(new TurnPassed(playerId, RotatePlayer(playerId)));
 
   public void Load(IEnumerable<object> events) {
     foreach (var @event in events) State = State.When(@event);

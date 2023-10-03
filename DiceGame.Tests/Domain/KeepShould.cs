@@ -160,4 +160,64 @@ public class KeepShould : GameWithThreePlayersTest {
     action.Should().NotThrow<PreconditionsFailedException>();
     State.TableCenter.Should().HaveCount(4);
   }
+
+
+  [Theory]
+  [MemberData(nameof(TricksAndScore))]
+  public void AddTurnScoreToPlayer(
+    string      reason,
+    int[]       rolledDice,
+    DiceValue[] diceToKeep,
+    int         expectedScore) {
+    // Arrange
+    SetupDiceToThrow(rolledDice);
+
+    // Act
+    Game.ThrowDice(new PlayerId(1));
+    var action = () => Game.Keep(new Keep(1, diceToKeep));
+
+    // Assert
+    action.Should().NotThrow<PreconditionsFailedException>();
+    var score = State.TurnScoreFor(new PlayerId(1));
+    score.Should()
+      .Be(new Score(new PlayerId(1), expectedScore),
+        $"{reason} but got {score}");
+  }
+
+  [Fact]
+  public void ResetScoreIfPlayerGetsNoTricks() {
+    // Arrange
+    SetupDiceToThrow(new List<int>
+      { 1, 2, 3, 4, 5, 6 });
+    // Act
+    Game.ThrowDice(new PlayerId(1));
+    Game.Keep(new Keep(1, new[] { One }));
+    
+    SetupDiceToThrow(new List<int>
+      { 2, 2, 3, 3, 4, 6 });
+    Game.ThrowDice(new PlayerId(1));
+    
+    // Assert
+    var score = State.TurnScoreFor(new PlayerId(1));
+    score.Should()
+      .Be(new Score(new PlayerId(1), 0));
+  }
+
+  public static IEnumerable<object[]> TricksAndScore() {
+    yield return new object[]
+    {
+      "1 should add 100",
+      new[] { 1, 2, 2, 3, 4, 4 }, new[] { One }, 100
+    };
+    yield return new object[]
+    {
+      "1 and 5 should add 150",
+      new[] { 1, 1, 2, 3, 4, 5 }, new[] { One, Five, One }, 250
+    };
+    yield return new object[]
+    {
+      "2, 2, 2 should add 200",
+      new[] { 3, 3, 3, 3, 4, 4 }, new[] { Three, Three, Three }, 300
+    };
+  }
 }

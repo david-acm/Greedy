@@ -70,8 +70,8 @@ public class PlayerHasThoseDice : Validator {
 public class DiceAreStair : Validator {
   private readonly IEnumerable<DiceValue> _dice;
 
-  public DiceAreStair(Dice fromValues) {
-    _dice = fromValues.DiceValues;
+  public DiceAreStair(Dice dice) {
+    _dice = dice.DiceValues;
   }
 
   public override ValidationResult IsSatisfied() =>
@@ -93,30 +93,43 @@ internal record GameHasNotStarted(GameStage GameStage);
 public record DiceNotAllowedToBeKept(string Reason, int[] Dice);
 
 public class DiceAreOnesOrFives : Validator {
-  private readonly Dice _dice;
+  private readonly IEnumerable<DiceValue> _dice;
 
   public DiceAreOnesOrFives(Dice dice) {
-    _dice = dice;
+    _dice = dice.DiceValues;
   }
 
   public override ValidationResult IsSatisfied() =>
-    new(_dice.DiceValues.All(d => d == DiceValue.One || d == DiceValue.Five),
-      new DiceNotAllowedToBeKept("Dice are not ones or fives", _dice.DiceValues.ToPrimitiveArray()));
+    new(_dice.All(d => d == DiceValue.One || d == DiceValue.Five),
+      new DiceNotAllowedToBeKept("Dice are not ones or fives", _dice.ToPrimitiveArray()));
+}
+
+public class CanKeepDice : Validator {
+  private readonly IEnumerable<DiceValue> _dice;
+
+  public CanKeepDice(Dice dice) {
+    _dice = dice.DiceValues;
+  }
+
+  public override ValidationResult IsSatisfied() =>
+    new(_dice.Any(d => d == DiceValue.One || d == DiceValue.Five)
+      || _dice.GroupBy(d => d).MaxBy(d => d.Count())?.Count() >=3,
+      new DiceNotAllowedToBeKept("Dice are not ones or fives", _dice.ToPrimitiveArray()));
 }
 
 public class DiceAreTrips : Validator {
-  private readonly Dice _dice;
+  private readonly IEnumerable<DiceValue> _dice;
 
   public DiceAreTrips(Dice dice) {
-    _dice = dice;
+    _dice = dice.DiceValues;
   }
 
   public override ValidationResult IsSatisfied() =>
     new(AreThree(_dice) && AllDiceHaveTheSameValue(_dice), $"The dice {_dice} are not trips.");
 
-  private static bool AreThree(Dice destination) => destination.DiceValues.Count() == 3;
+  private static bool AreThree(IEnumerable<DiceValue> destination) => destination.Count() == 3;
 
-  private static bool AllDiceHaveTheSameValue(Dice destination) => destination.DiceValues.GroupBy(v => v).Count() == 1;
+  private static bool AllDiceHaveTheSameValue(IEnumerable<DiceValue> destination) => destination.GroupBy(v => v).Count() == 1;
 }
 
 public class PlayerIsInTurn : Validator {

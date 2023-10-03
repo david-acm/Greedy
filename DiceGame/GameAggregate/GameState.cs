@@ -40,24 +40,35 @@ public record GameState(
   private GameState HandleDiceKept(GameState state, DiceKept diceKept) =>
     state with
     {
-      DiceKept = DiceKept.AddRange(Dice.FromValues(diceKept.Dice).DiceValues)
+      DiceKept = DiceKept.AddRange(Dice.FromValues(diceKept.Dice).DiceValues),
+      _scoreTable = _scoreTable.SetItem(diceKept.PlayerId, GetScore(diceKept))
     };
 
   private GameState HandleTurnPassed(GameState state, TurnPassed e)
     => state with
     {
       Players = e.RotatedPlayers,
-      _scoreTable = _scoreTable.SetItem(e.PlayerId, GetScore())
     };
 
-  private int GetScore() => 100;
+  private static int GetScore(DiceKept diceKept) {
+    var dice = Dice.FromValues(diceKept.Dice);
+    var tricks = new Dictionary<Validator, int>
+    {
+      { new DiceAreTrips(dice), dice.DiceValues.First().Value                             * 100 },
+      { new DiceAreOnesOrFives(dice), dice.DiceValues.Count(d => d == DiceValue.One) * 100 + dice.DiceValues.Count(d => d == DiceValue.Five) * 50 },
+      { new DiceAreStair(dice), 1500 }
+    };
+
+    return tricks.First(v => v.Key.IsSatisfied()).Value;
+  }
 
   private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown)
     => gameState with
     {
       Throws = Throws.Add(new Play(
         diceThrown.PlayerId,
-        new Dice(diceThrown.Dice.ToDiceValues())))
+        new Dice(diceThrown.Dice.ToDiceValues()))),
+      _scoreTable = _scoreTable.SetItem(diceThrown.PlayerId, new CanKeepDice(new Dice(diceThrown.Dice.ToDiceValues())).IsSatisfied() ? _scoreTable[diceThrown.PlayerId] : 0)
     };
 
   public Player GetPlayer(int id) => Players.Single(p => p.Id == id);
@@ -79,7 +90,7 @@ public record GameState(
     GameStage = GameStage.Started
   };
 
-  public           Score                     ScoreFor(PlayerId playerId) => new Score(playerId, _scoreTable[playerId]);
+  public  Score                              TurnScoreFor(PlayerId playerId) => new Score(playerId, _scoreTable[playerId]);
   private ImmutableDictionary<PlayerId, int> _scoreTable = ImmutableDictionary<PlayerId, int>.Empty;
 }
 
