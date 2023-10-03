@@ -24,19 +24,32 @@ public class Game {
     Apply(new PlayerJoined(joinPlayer.Id, joinPlayer.Name));
 
   public void RollDice(PlayerId playerId) {
-    var @Roll = Dice.FromNewRoll(
+    var roll = Dice.FromNewRoll(
       _randomProvider,
       GetNumberOfDiceToTrow());
-    Apply(new DiceRolled(playerId, @Roll.DiceValues.ToPrimitiveArray()));
+    
+    Apply(new DiceRolled(
+      playerId,
+      roll.DiceValues.ToPrimitiveArray(),
+      GetScoreAfterRoll(roll)));
   }
 
-  public void Pass(PlayerId playerId) => Apply(new TurnPassed(playerId, RotatePlayer(playerId)));
+  public void Pass(PlayerId playerId) {
+    Apply(new TurnPassed(
+      playerId,
+      GetPlayerOrder(playerId),
+      GetScore(playerId)));
+  }
+
+  private int GetScore(PlayerId playerId) {
+    return State.GameScoreFor(playerId) + State.TurnScore;
+  }
 
   public void Load(IEnumerable<object> events) {
     foreach (var @event in events) State = State.When(@event);
   }
 
-  private ImmutableArray<Player> RotatePlayer(int playerId) {
+  private ImmutableArray<Player> GetPlayerOrder(int playerId) {
     var player        = State.GetPlayer(playerId);
     var newPlayerList = State.Players.Remove(player).Add(player);
     return newPlayerList;
@@ -81,11 +94,19 @@ public class Game {
 
     return new Score(currentScore + turnScore);
   }
+  
+  
+  private Score GetScoreAfterRoll(Dice dice) {
+    var canKeepAnyDice = new CanKeepDice(dice).IsSatisfied();
+
+    return canKeepAnyDice ? State.TurnScore : new Score(0);
+  }
 }
 
-public record DiceKept(int PlayerId, int[] Dice, int newTurnScore);
+public record DiceKept(int PlayerId, int[] Dice, int NewTurnScore);
 
-public record TurnPassed(int PlayerId, ImmutableArray<Player> RotatedPlayers);
+public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore) {
+}
 
 public record Player(int Id, string Name);
 

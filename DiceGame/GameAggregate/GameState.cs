@@ -9,26 +9,33 @@ public record GameState(
   GameStage              GameStage,
   ImmutableArray<Player> Players
 ) {
-  public Play? LastRoll => Rolls.LastOrDefault();
+  public int   Id        { get; private init; }
+  public Score TurnScore { get; private init; } = new(0);
 
-  public ImmutableArray<Play> Rolls { get; private set; } = ImmutableArray<Play>.Empty;
+  public ImmutableArray<Roll>      Rolls    { get; private init; } = ImmutableArray<Roll>.Empty;
+  public ImmutableArray<DiceValue> DiceKept { get; private init; } = ImmutableArray<DiceValue>.Empty;
 
-  public   ImmutableArray<DiceValue> DiceKept     { get; private set; } = ImmutableArray<DiceValue>.Empty;
-  internal int                       PlayerInTurn => Players[0].Id;
+  public ImmutableDictionary<PlayerId, int> ScoreTable { get; private init; } =
+    ImmutableDictionary<PlayerId, int>.Empty;
+
+  public   Roll?  LastRoll                        => Rolls.LastOrDefault();
+  public   Score  GameScoreFor(PlayerId playerId) => new(ScoreTable[playerId]);
+  public   Player GetPlayer(int         id)       => Players.Single(p => p.Id == id);
+  internal int    PlayerInTurn                    => Players[0].Id;
+  public   bool   IsFirstRoll                     => LastRoll is null;
+
 
   public IEnumerable<DiceValue> TableCenter
   {
     get
     {
-      var @Roll = ImmutableArray<DiceValue>.Empty.AddRange(LastRoll.Dice.DiceValues);
-      DiceKept.ToList().ForEach(k => @Roll = @Roll.Remove(k));
+      var roll = ImmutableArray<DiceValue>.Empty.AddRange(LastRoll.Dice.DiceValues);
+      DiceKept.ToList().ForEach(k => roll = roll.Remove(k));
       return LastRoll is null
         ? ImmutableArray<DiceValue>.Empty
-        : @Roll;
+        : roll;
     }
   }
-
-  public bool IsFirstRoll => LastRoll is null;
 
   public GameState When(object @event) {
     var state = @event switch
@@ -44,62 +51,45 @@ public record GameState(
     return state;
   }
 
-  private GameState HandleDiceKept(GameState state, DiceKept diceKept) =>
-    state with
-    {
-      DiceKept = DiceKept.AddRange(Dice.FromValues(diceKept.Dice).DiceValues),
-      TurnScore = diceKept.newTurnScore
-    };
-
-  private GameState HandleTurnPassed(GameState state, TurnPassed e)
+  private static GameState HandleDiceKept(GameState state, DiceKept e)
     => state with
     {
-      Players = e.RotatedPlayers,
-      _scoreTable = _scoreTable.SetItem(
-        PlayerInTurn, 
-        _scoreTable[PlayerInTurn] + TurnScore)
+      DiceKept = state.DiceKept.AddRange(Dice.FromValues(e.Dice).DiceValues),
+      TurnScore = e.NewTurnScore
     };
 
+  private static GameState HandleTurnPassed(GameState state, TurnPassed e)
+    => state with
+    {
+      Players = e.PlayerOrder,
+      ScoreTable = state.ScoreTable
+        .SetItem(
+          e.PlayerId,
+          e.GameScore)
+    };
 
-  private GameState HandleDiceRolled(GameState gameState, DiceRolled diceRolled)
+  private static GameState HandleDiceRolled(GameState state, DiceRolled e)
+    => state with
+    {
+      Rolls = state.Rolls.Add(new Roll(
+        e.PlayerId,
+        new Dice(e.Dice.ToDiceValues()))),
+      TurnScore = e.TurnScore
+    };
+
+  private static GameState HandlePlayerJoined(GameState state, PlayerJoined playerJoined)
+    => state with
+    {
+      Players = state.Players.Add(new Player(playerJoined.Id, playerJoined.Name)),
+      ScoreTable = state.ScoreTable.Add(playerJoined.Id, 0)
+    };
+
+  private static GameState HandleGameStarted(GameState gameState, GameStarted e)
     => gameState with
     {
-      Rolls = Rolls.Add(new Play(
-        diceRolled.PlayerId,
-        new Dice(diceRolled.Dice.ToDiceValues()))),
-      TurnScore = ResetScoreWhenGreedy(diceRolled)
+      Id = e.Id,
+      GameStage = GameStage.Started
     };
-
-  private Score ResetScoreWhenGreedy(DiceRolled diceRolled) {
-    var canKeepAnyDice = new CanKeepDice(new Dice(diceRolled.Dice.ToDiceValues())).IsSatisfied();
-
-    return canKeepAnyDice ? TurnScore : new Score(0);
-  }
-
-  public Player GetPlayer(int id) => Players.Single(p => p.Id == id);
-
-
-  private GameState HandlePlayerJoined(GameState gameState, PlayerJoined playerJoined)
-    => gameState with
-    {
-      Players = Players.Add(new Player(playerJoined.Id, playerJoined.Name)),
-      _scoreTable = _scoreTable.Add(playerJoined.Id, 0)
-    };
-
-  private GameState HandleGameStarted(
-    GameState   gameState,
-    GameStarted e
-  ) => gameState with
-  {
-    Id = e.Id,
-    GameStage = GameStage.Started
-  };
-
-  public Score TurnScore { get; private set; } = new(0);
-
-  private ImmutableDictionary<PlayerId, int> _scoreTable         = ImmutableDictionary<PlayerId, int>.Empty;
-
-  public Score GameScoreFor(PlayerId playerId) => new(_scoreTable[playerId]);
 }
 
 public record Score(int Value) {
@@ -108,4 +98,4 @@ public record Score(int Value) {
   public static implicit operator Score(int score) => new Score(score);
 }
 
-public record Play(int PlayerId, Dice Dice);
+public record Roll(int PlayerId, Dice Dice);

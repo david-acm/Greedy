@@ -30,7 +30,7 @@ public static class GameEvents {
 
   public record PlayerJoined(int Id, string Name);
 
-  public record DiceRolled(int PlayerId, int[] Dice);
+  public record DiceRolled(int PlayerId, int[] Dice, Score TurnScore);
 }
 
 public sealed class DiceValue : SmartEnum<DiceValue, int> {
