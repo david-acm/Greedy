@@ -17,17 +17,8 @@ public static class GameValidator {
         new PlayedOutOfTurn(e.PlayerId, state.PlayerInTurn)),
       DiceKept e =>
         new PlayerIsInTurn(state, e.PlayerId)
-          .And(
-            new PlayerHasThoseDice(GetDice(e), state))
-          .And
-          (
-            new CanKeepDice(GetDice(e))
-            // new DiceAreOnesOrFives(GetDice(e))
-            //   .Or(
-            //     new DiceAreTrips(GetDice(e)))
-            //   .Or(
-            //     new DiceAreStair(GetDice(e)))
-          )
+          .And(new PlayerHasThoseDice(GetDice(e), state))
+          .And(new CanKeepDice(GetDice(e)))
           .IsSatisfied(),
 
       _ => Validate(false, $"No validation performed for event {@event}")

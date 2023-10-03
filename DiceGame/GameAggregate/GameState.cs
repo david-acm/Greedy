@@ -9,11 +9,13 @@ public record GameState(
   GameStage              GameStage,
   ImmutableArray<Player> Players
 ) {
-  public int   Id        { get; private init; }
-  public Score TurnScore { get; private init; } = new(0);
+  public int   Id          { get; private init; }
+  public Score TurnScore   { get; private init; } = new(0);
 
-  public ImmutableArray<Roll>      Rolls    { get; private init; } = ImmutableArray<Roll>.Empty;
-  public ImmutableArray<DiceValue> DiceKept { get; private init; } = ImmutableArray<DiceValue>.Empty;
+  public ImmutableArray<DiceValue> TableCenter { get; private init; } = ImmutableArray<DiceValue>.Empty;
+  public ImmutableArray<Roll>      Rolls       { get; private init; } = ImmutableArray<Roll>.Empty;
+  public ImmutableArray<DiceValue> DiceKept    { get; private init; } = ImmutableArray<DiceValue>.Empty;
+
 
   public ImmutableDictionary<PlayerId, int> ScoreTable { get; private init; } =
     ImmutableDictionary<PlayerId, int>.Empty;
@@ -24,18 +26,6 @@ public record GameState(
   internal int    PlayerInTurn                    => Players[0].Id;
   public   bool   IsFirstRoll                     => LastRoll is null;
 
-
-  public IEnumerable<DiceValue> TableCenter
-  {
-    get
-    {
-      var roll = ImmutableArray<DiceValue>.Empty.AddRange(LastRoll.Dice.DiceValues);
-      DiceKept.ToList().ForEach(k => roll = roll.Remove(k));
-      return LastRoll is null
-        ? ImmutableArray<DiceValue>.Empty
-        : roll;
-    }
-  }
 
   public GameState When(object @event) {
     var state = @event switch
@@ -55,7 +45,8 @@ public record GameState(
     => state with
     {
       DiceKept = state.DiceKept.AddRange(Dice.FromValues(e.Dice).DiceValues),
-      TurnScore = e.NewTurnScore
+      TurnScore = e.NewTurnScore,
+      TableCenter = state.TableCenter.RemoveRange(Dice.FromValues(e.Dice).DiceValues)
     };
 
   private static GameState HandleTurnPassed(GameState state, TurnPassed e)
@@ -71,10 +62,9 @@ public record GameState(
   private static GameState HandleDiceRolled(GameState state, DiceRolled e)
     => state with
     {
-      Rolls = state.Rolls.Add(new Roll(
-        e.PlayerId,
-        new Dice(e.Dice.ToDiceValues()))),
-      TurnScore = e.TurnScore
+      Rolls = state.Rolls.Add(new Roll(new Dice(e.Dice.ToDiceValues()))),
+      TurnScore = e.TurnScore,
+      TableCenter = ImmutableArray<DiceValue>.Empty.AddRange(e.Dice.ToDiceValues())
     };
 
   private static GameState HandlePlayerJoined(GameState state, PlayerJoined playerJoined)
@@ -98,4 +88,4 @@ public record Score(int Value) {
   public static implicit operator Score(int score) => new Score(score);
 }
 
-public record Roll(int PlayerId, Dice Dice);
+public record Roll(Dice Dice);

@@ -161,7 +161,6 @@ public class KeepShould : GameWithThreePlayersTest {
     State.TableCenter.Should().HaveCount(4);
   }
 
-
   [Theory]
   [MemberData(nameof(TricksAndScore))]
   public void AddTurnScoreToPlayer(

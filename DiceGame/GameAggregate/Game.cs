@@ -105,8 +105,7 @@ public class Game {
 
 public record DiceKept(int PlayerId, int[] Dice, int NewTurnScore);
 
-public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore) {
-}
+public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore);
 
 public record Player(int Id, string Name);
 
