@@ -1,21 +1,20 @@
 using System.Collections.Immutable;
+using static System.Collections.Immutable.ImmutableArray<DiceGame.GameAggregate.Player>;
+using static System.Collections.Immutable.ImmutableArray<DiceGame.GameAggregate.DiceValue>;
 using static DiceGame.GameAggregate.Commands;
 using static DiceGame.GameAggregate.GameEvents;
 
 namespace DiceGame.GameAggregate;
 
-public record GameState(
-  int                    Id,
-  GameStage              GameStage,
-  ImmutableArray<Player> Players
-) {
-  public int   Id          { get; private init; }
-  public Score TurnScore   { get; private init; } = new(0);
+public record GameState {
+  public int       Id        { get; private init; }
+  public GameStage GameStage { get; private init; }
+  public Score     TurnScore { get; private init; } = new(0);
 
+  public ImmutableArray<Player>    Players     { get; private init; } = ImmutableArray<Player>.Empty;
   public ImmutableArray<DiceValue> TableCenter { get; private init; } = ImmutableArray<DiceValue>.Empty;
   public ImmutableArray<Roll>      Rolls       { get; private init; } = ImmutableArray<Roll>.Empty;
   public ImmutableArray<DiceValue> DiceKept    { get; private init; } = ImmutableArray<DiceValue>.Empty;
-
 
   public ImmutableDictionary<PlayerId, int> ScoreTable { get; private init; } =
     ImmutableDictionary<PlayerId, int>.Empty;

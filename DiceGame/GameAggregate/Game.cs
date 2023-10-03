@@ -14,7 +14,7 @@ public class Game {
     _randomProvider = randomProvider ?? new DefaultRandomProvider();
   }
 
-  public GameState State { get; private set; } = new(0, None, ImmutableArray<Player>.Empty);
+  public GameState State { get; private set; } = new();
 
   public IReadOnlyList<object> Events => _events.AsReadOnly();
 
