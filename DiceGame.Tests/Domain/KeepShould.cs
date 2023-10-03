@@ -16,7 +16,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void OnlyAllowToKeepByThePlayerInTurn() {
     // Arrange
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     var action = () => Game.Keep(new Keep(2, new[]
     {
       Five,
@@ -32,7 +32,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void OnlyAllowToKeepFivesAndOnes_WhenThePlayerDidntGetAnyOtherTricks() {
     // Arrange
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     var action = () => Game.Keep(new Keep(1, new[]
     {
       Four
@@ -47,9 +47,9 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepTrips() {
     // Arrange
-    SetupDiceToThrow(new List<int>
+    SetupDiceToRoll(new List<int>
       { 4, 4, 4, 2, 1, 2, 3 });
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
 
     var action = () => Game.Keep(new Keep(1, new[]
     {
@@ -67,7 +67,7 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowToKeepStair() {
     // Arrange
-    SetupDiceToThrow(new List<int>
+    SetupDiceToRoll(new List<int>
       { 1, 2, 3, 4, 5, 6 });
     var action = () => Game.Keep(new Keep(1, new[]
     {
@@ -80,7 +80,7 @@ public class KeepShould : GameWithThreePlayersTest {
     }));
 
     //Act
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
@@ -89,9 +89,9 @@ public class KeepShould : GameWithThreePlayersTest {
   }
 
   [Fact]
-  public void AllowToKeepOnlyDiceThatWereThrown() {
+  public void AllowToKeepOnlyDiceThatWereRolled() {
     // Arrange
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     var diceValues = new[]
     {
       One,
@@ -102,7 +102,7 @@ public class KeepShould : GameWithThreePlayersTest {
       Six
     };
 
-    var last = State.LastThrow!.Dice.DiceValues;
+    var last = State.LastRoll!.Dice.DiceValues;
 
     var diceToKeep = diceValues.Where(d => !last.Contains(d));
 
@@ -122,14 +122,14 @@ public class KeepShould : GameWithThreePlayersTest {
     {
       1, 1, 3, 4, 5, 6
     };
-    SetupDiceToThrow(values);
-    Game.ThrowDice(new PlayerId(1));
+    SetupDiceToRoll(values);
+    Game.RollDice(new PlayerId(1));
     var diceValues = new[]
     {
       One
     };
 
-    var last = State.LastThrow!.Dice.DiceValues;
+    var last = State.LastRoll!.Dice.DiceValues;
 
     var diceToKeep = diceValues.First(d => last.Contains(d) && d == One);
 
@@ -148,12 +148,12 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void RemoveDiceFromTableCenter() {
     // Arrange
-    SetupDiceToThrow(new List<int>
+    SetupDiceToRoll(new List<int>
       { 1, 2, 3, 4, 5, 6 });
     var diceToKeep = new[] { One, Five };
 
     //Act
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     var action = () => Game.Keep(new Keep(1, diceToKeep));
 
     // Assert
@@ -170,8 +170,8 @@ public class KeepShould : GameWithThreePlayersTest {
     DiceValue[] diceToKeep,
     int         expectedScore) {
     // Arrange
-    SetupDiceToThrow(rolledDice);
-    Game.ThrowDice(new PlayerId(1));
+    SetupDiceToRoll(rolledDice);
+    Game.RollDice(new PlayerId(1));
     var action = () => Game.Keep(new Keep(1, diceToKeep));
 
     // Assert
@@ -184,14 +184,14 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void ResetScoreIfPlayerGetsNoTricks() {
     // Arrange
-    SetupDiceToThrow(new List<int>
+    SetupDiceToRoll(new List<int>
       { 1, 2, 3, 4, 5, 6 });
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     Game.Keep(new Keep(1, new[] { One }));
     
-    SetupDiceToThrow(new List<int>
+    SetupDiceToRoll(new List<int>
       { 2, 2, 3, 3, 4, 6 });
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     
     // Assert
     State.TurnScore.Should()
@@ -201,12 +201,12 @@ public class KeepShould : GameWithThreePlayersTest {
   [Fact]
   public void AddToTurnScore() {
     // Arrange
-    SetupDiceToThrow(new List<int> { 1, 2, 3, 4, 5, 6 });
-    Game.ThrowDice(new PlayerId(1));
+    SetupDiceToRoll(new List<int> { 1, 2, 3, 4, 5, 6 });
+    Game.RollDice(new PlayerId(1));
     Game.Keep(new Keep(1, new[] { One }));
     
-    SetupDiceToThrow(new List<int> { 1, 1, 3, 3, 4 });
-    Game.ThrowDice(new PlayerId(1));
+    SetupDiceToRoll(new List<int> { 1, 1, 3, 3, 4 });
+    Game.RollDice(new PlayerId(1));
     Game.Keep(new Keep(1, new[] { One }));
     
     // Assert

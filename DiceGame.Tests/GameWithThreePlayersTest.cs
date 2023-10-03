@@ -15,7 +15,7 @@ public class GameWithThreePlayersTest {
     Output = output;
     // Arrange
     _randomProvider = Mock.Of<IRandom>();
-    SetupDiceToThrow(new List<int>
+    SetupDiceToRoll(new List<int>
       { 4, 4, 4, 2, 1, 2, 3 });
     var game = new Game(_randomProvider);
 
@@ -33,7 +33,7 @@ public class GameWithThreePlayersTest {
   protected IReadOnlyList<object> Events => Game.Events;
 
 
-  protected void SetupDiceToThrow(IEnumerable<int> values) {
+  protected void SetupDiceToRoll(IEnumerable<int> values) {
     _enumerator = values.ToList().GetEnumerator();
     Mock.Get(_randomProvider)
       .Setup(s => s.Next(It.IsAny<int>(), It.IsAny<int>()))

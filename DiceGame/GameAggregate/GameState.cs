@@ -9,9 +9,9 @@ public record GameState(
   GameStage              GameStage,
   ImmutableArray<Player> Players
 ) {
-  public Play? LastThrow => Throws.LastOrDefault();
+  public Play? LastRoll => Rolls.LastOrDefault();
 
-  public ImmutableArray<Play> Throws { get; private set; } = ImmutableArray<Play>.Empty;
+  public ImmutableArray<Play> Rolls { get; private set; } = ImmutableArray<Play>.Empty;
 
   public   ImmutableArray<DiceValue> DiceKept     { get; private set; } = ImmutableArray<DiceValue>.Empty;
   internal int                       PlayerInTurn => Players[0].Id;
@@ -20,22 +20,22 @@ public record GameState(
   {
     get
     {
-      var @throw = ImmutableArray<DiceValue>.Empty.AddRange(LastThrow.Dice.DiceValues);
-      DiceKept.ToList().ForEach(k => @throw = @throw.Remove(k));
-      return LastThrow is null
+      var @Roll = ImmutableArray<DiceValue>.Empty.AddRange(LastRoll.Dice.DiceValues);
+      DiceKept.ToList().ForEach(k => @Roll = @Roll.Remove(k));
+      return LastRoll is null
         ? ImmutableArray<DiceValue>.Empty
-        : @throw;
+        : @Roll;
     }
   }
 
-  public bool IsFirstThrow => LastThrow is null;
+  public bool IsFirstRoll => LastRoll is null;
 
   public GameState When(object @event) {
     var state = @event switch
     {
       GameStarted e  => HandleGameStarted(this, e),
       PlayerJoined e => HandlePlayerJoined(this, e),
-      DiceThrown e   => HandleDiceThrown(this, e),
+      DiceRolled e   => HandleDiceRolled(this, e),
       TurnPassed e   => HandleTurnPassed(this, e),
       DiceKept e     => HandleDiceKept(this, e),
       _              => this
@@ -48,7 +48,7 @@ public record GameState(
     state with
     {
       DiceKept = DiceKept.AddRange(Dice.FromValues(diceKept.Dice).DiceValues),
-      TurnScore = GetScore(diceKept, TurnScore)
+      TurnScore = diceKept.newTurnScore
     };
 
   private GameState HandleTurnPassed(GameState state, TurnPassed e)
@@ -60,34 +60,18 @@ public record GameState(
         _scoreTable[PlayerInTurn] + TurnScore)
     };
 
-  private static Score GetScore(DiceKept diceKept, int currentScore) {
-    var dice = Dice.FromValues(diceKept.Dice);
-    var tricks = new Dictionary<Validator, int>
-    {
-      { new DiceAreTrips(dice), dice.DiceValues.First().Value * 100 },
-      {
-        new DiceAreOnesOrFives(dice),
-        dice.DiceValues.Count(d => d == DiceValue.One) * 100 + dice.DiceValues.Count(d => d == DiceValue.Five) * 50
-      },
-      { new DiceAreStair(dice), 1500 }
-    };
 
-    var turnScore = tricks.First(v => v.Key.IsSatisfied()).Value;
-
-    return new Score(currentScore + turnScore);
-  }
-
-  private GameState HandleDiceThrown(GameState gameState, DiceThrown diceThrown)
+  private GameState HandleDiceRolled(GameState gameState, DiceRolled diceRolled)
     => gameState with
     {
-      Throws = Throws.Add(new Play(
-        diceThrown.PlayerId,
-        new Dice(diceThrown.Dice.ToDiceValues()))),
-      TurnScore = ResetScoreWhenGreedy(diceThrown)
+      Rolls = Rolls.Add(new Play(
+        diceRolled.PlayerId,
+        new Dice(diceRolled.Dice.ToDiceValues()))),
+      TurnScore = ResetScoreWhenGreedy(diceRolled)
     };
 
-  private Score ResetScoreWhenGreedy(DiceThrown diceThrown) {
-    var canKeepAnyDice = new CanKeepDice(new Dice(diceThrown.Dice.ToDiceValues())).IsSatisfied();
+  private Score ResetScoreWhenGreedy(DiceRolled diceRolled) {
+    var canKeepAnyDice = new CanKeepDice(new Dice(diceRolled.Dice.ToDiceValues())).IsSatisfied();
 
     return canKeepAnyDice ? TurnScore : new Score(0);
   }
@@ -120,6 +104,8 @@ public record GameState(
 
 public record Score(int Value) {
   public static implicit operator int(Score score) => score.Value;
+
+  public static implicit operator Score(int score) => new Score(score);
 }
 
 public record Play(int PlayerId, Dice Dice);

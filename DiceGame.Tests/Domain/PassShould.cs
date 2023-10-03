@@ -15,7 +15,7 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowPlayerToPass() {
     // Act
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     Game.Pass(new PlayerId(1));
 
     // Assert
@@ -27,12 +27,12 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void NotAllowPlayerNotInTurnToPass() {
     // Act
-    Game.ThrowDice(new PlayerId(1));
+    Game.RollDice(new PlayerId(1));
     var action = () => Game.Pass(new PlayerId(2));
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
-    State.Throws.Should().HaveCount(1);
+    State.Rolls.Should().HaveCount(1);
     var playedOutOfTurn = Events.Should().ContainSingleEvent<PlayedOutOfTurn>();
     playedOutOfTurn.Should()
       .Be(
@@ -42,12 +42,12 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void AddToGameScoreIfPlayerKeptTricks() {
     // Arrange
-    SetupDiceToThrow(new List<int> { 1, 2, 3, 4, 5, 6 });
-    Game.ThrowDice(new PlayerId(1));
+    SetupDiceToRoll(new List<int> { 1, 2, 3, 4, 5, 6 });
+    Game.RollDice(new PlayerId(1));
     Game.Keep(new Keep(1, new[] { One }));
     
-    SetupDiceToThrow(new List<int> { 2, 2, 2, 4, 5, 6 });
-    Game.ThrowDice(new PlayerId(1));
+    SetupDiceToRoll(new List<int> { 2, 2, 2, 4, 5, 6 });
+    Game.RollDice(new PlayerId(1));
     Game.Keep(new Keep(1, new[] { Two, Two, Two }));
     Game.Pass(1);
     

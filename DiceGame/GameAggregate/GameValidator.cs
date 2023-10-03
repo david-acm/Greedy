@@ -10,7 +10,7 @@ public static class GameValidator {
         state.GameStage == GameStage.None, new GameAlreadyStarted(e.Id)),
       PlayerJoined => Validate(
         state.GameStage == GameStage.Started, new GameHasNotStarted(state.GameStage)),
-      DiceThrown e => Validate(
+      DiceRolled e => Validate(
         PlayerInTurn(state, e.PlayerId), new PlayedOutOfTurn(e.PlayerId, state.PlayerInTurn)),
       TurnPassed e => Validate(
         PlayerInTurn(state, e.PlayerId),

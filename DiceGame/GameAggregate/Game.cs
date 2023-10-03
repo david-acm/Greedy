@@ -23,11 +23,11 @@ public class Game {
   public void JoinPlayer(JoinPlayer joinPlayer) =>
     Apply(new PlayerJoined(joinPlayer.Id, joinPlayer.Name));
 
-  public void ThrowDice(PlayerId playerId) {
-    var @throw = Dice.FromNewThrow(
+  public void RollDice(PlayerId playerId) {
+    var @Roll = Dice.FromNewRoll(
       _randomProvider,
       GetNumberOfDiceToTrow());
-    Apply(new DiceThrown(playerId, @throw.DiceValues.ToPrimitiveArray()));
+    Apply(new DiceRolled(playerId, @Roll.DiceValues.ToPrimitiveArray()));
   }
 
   public void Pass(PlayerId playerId) => Apply(new TurnPassed(playerId, RotatePlayer(playerId)));
@@ -43,10 +43,11 @@ public class Game {
   }
 
   public void Keep(Keep keep) =>
-    Apply(new DiceKept(keep.PlayerId, keep.DiceValues.ToPrimitiveArray()));
+    Apply(new DiceKept(keep.PlayerId, keep.DiceValues.ToPrimitiveArray(),
+      GetNewTurnScore(keep.DiceValues, State.TurnScore)));
 
   private int GetNumberOfDiceToTrow() =>
-    State.IsFirstThrow ? 6 : 6 - State.DiceKept.Length;
+    State.IsFirstRoll ? 6 : 6 - State.DiceKept.Length;
 
   private void Apply(object @event) {
     try
@@ -62,14 +63,27 @@ public class Game {
     State = State.When(@event);
     _events.Add(@event);
   }
+  
+  
+  private static int GetNewTurnScore(IEnumerable<DiceValue> diceKept, int currentScore) {
+    var dice = new Dice(diceKept);
+    var tricks = new Dictionary<Validator, int>
+    {
+      { new DiceAreTrips(dice), dice.DiceValues.First().Value * 100 },
+      {
+        new DiceAreOnesOrFives(dice),
+        dice.DiceValues.Count(d => d == DiceValue.One) * 100 + dice.DiceValues.Count(d => d == DiceValue.Five) * 50
+      },
+      { new DiceAreStair(dice), 1500 }
+    };
+
+    var turnScore = tricks.FirstOrDefault(v => v.Key.IsSatisfied()).Value;
+
+    return new Score(currentScore + turnScore);
+  }
 }
 
-public class DefaultRandomProvider : IRandom {
-  public int Next(int minValue, int maxValue) =>
-    new Random().Next(minValue, maxValue);
-}
-
-public record DiceKept(int PlayerId, int[] Dice);
+public record DiceKept(int PlayerId, int[] Dice, int newTurnScore);
 
 public record TurnPassed(int PlayerId, ImmutableArray<Player> RotatedPlayers);
 
