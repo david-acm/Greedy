@@ -3,9 +3,9 @@ using Ardalis.SmartEnum;
 namespace DiceGame.GameAggregate;
 
 public record Dice(IEnumerable<DiceValue> DiceValues) {
-  public static Dice FromNewThrow(IRandom randomizer, int diceToThrow) {
+  public static Dice FromNewRoll(IRandom randomizer, int diceToRoll) {
     var dice = new List<DiceValue>();
-    for (var i = 1; i <= diceToThrow; i++)
+    for (var i = 1; i <= diceToRoll; i++)
       dice.Add(DiceValue.FromValue(randomizer.Next(1,
         6)));
 
@@ -14,7 +14,7 @@ public record Dice(IEnumerable<DiceValue> DiceValues) {
 
   public static Dice FromValues(IEnumerable<int> values) {
     var valueList = values.ToList();
-    if (valueList.Count > 6) throw new ArgumentOutOfRangeException($"Can't throw more than 6 dice. Found: {valueList}");
+    if (valueList.Count > 6) throw new ArgumentOutOfRangeException($"Can't Roll more than 6 dice. Found: {valueList}");
     return new Dice(valueList.ToDiceValues());
   }
 }
@@ -30,7 +30,7 @@ public static class GameEvents {
 
   public record PlayerJoined(int Id, string Name);
 
-  public record DiceThrown(int PlayerId, int[] Dice);
+  public record DiceRolled(int PlayerId, int[] Dice, Score TurnScore);
 }
 
 public sealed class DiceValue : SmartEnum<DiceValue, int> {
