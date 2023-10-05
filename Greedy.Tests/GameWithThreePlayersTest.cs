@@ -1,9 +1,9 @@
-using DiceGame.GameAggregate;
+using Greedy.GameAggregate;
 using Moq;
 using Xunit.Abstractions;
-using static DiceGame.GameAggregate.Commands;
+using static Greedy.GameAggregate.Command;
 
-namespace DiceGame.Tests;
+namespace Greedy.Tests;
 
 public class GameWithThreePlayersTest {
   private readonly   IRandom              _randomProvider;
@@ -21,16 +21,16 @@ public class GameWithThreePlayersTest {
 
     // Act
     game.Start(new StartGame(1));
-    game.JoinPlayer(new JoinPlayer(1, "David"));
-    game.JoinPlayer(new JoinPlayer(2, "Cristian"));
-    game.JoinPlayer(new JoinPlayer(3, "German"));
+    game.JoinPlayer(new JoinPlayer(1, 1, "David"));
+    game.JoinPlayer(new JoinPlayer(1, 2, "Cristian"));
+    game.JoinPlayer(new JoinPlayer(1, 3, "German"));
 
     Game = new Game(_randomProvider);
-    Game.Load(game.Events.ToList());
+    Game.Load(game.Changes.ToList());
   }
 
   protected GameState             State  => Game.State;
-  protected IReadOnlyList<object> Events => Game.Events;
+  protected IReadOnlyCollection<object> Events => Game.Changes;
 
 
   protected void SetupDiceToRoll(IEnumerable<int> values) {

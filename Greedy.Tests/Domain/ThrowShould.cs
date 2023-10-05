@@ -1,11 +1,11 @@
-using DiceGame.GameAggregate;
+using Greedy.GameAggregate;
 using FluentAssertions;
 using Xunit.Abstractions;
-using static DiceGame.GameAggregate.Commands;
-using static DiceGame.GameAggregate.DiceValue;
-using static DiceGame.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.Command;
+using static Greedy.GameAggregate.DiceValue;
+using static Greedy.GameAggregate.GameEvents;
 
-namespace DiceGame.Tests.Domain;
+namespace Greedy.Tests.Domain;
 
 public class RollShould : GameWithThreePlayersTest {
   public RollShould(ITestOutputHelper output) : base(output) {
@@ -14,8 +14,8 @@ public class RollShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowPlayerToRoll() {
     // Act
-    Game.RollDice(new PlayerId(1));
-    Game.Pass(new PlayerId(1));
+    Game.RollDice(new RollDice(1, 1));
+    Game.Pass(new PassTurn(1, 1));
 
     // Assert
     State.Rolls.Should().HaveCount(1);
@@ -31,7 +31,7 @@ public class RollShould : GameWithThreePlayersTest {
   [Fact]
   public void NotAllowPlayerToRollOutOfTurn() {
     // Act
-    var action = () => Game.RollDice(new PlayerId(2));
+    var action = () => Game.RollDice(new RollDice(1, 2));
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
@@ -50,11 +50,11 @@ public class RollShould : GameWithThreePlayersTest {
   [Fact]
   public void NotAllowNextPlayerToPlayUntilPlayerPasses() {
     // Act
-    Game.RollDice(new PlayerId(1));
+    Game.RollDice(new RollDice(1, 1));
     SetupDiceToRoll(new List<int>
       { 4, 4, 4, 2, 1, 2, 3 });
 
-    var action = () => Game.RollDice(new PlayerId(2));
+    var action = () => Game.RollDice(new RollDice(1, 2));
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
@@ -73,16 +73,16 @@ public class RollShould : GameWithThreePlayersTest {
   [Fact]
   public void RollOnlyAvailableDiceAtTheTableCenter() {
     // Arrange
-    SetupDiceToRoll(new List<int>
-      { 4, 4, 5, 2, 1, 2, 3 });
-
+    SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2, 3 });
     // Act
-    Game.RollDice(new PlayerId(1));
-    Game.Keep(new Keep(1, new[] { One }));
-    SetupDiceToRoll(new List<int>
-      { 4, 4, 5, 2, 1, 2 });
-    Game.RollDice(new PlayerId(1));
-    Game.Keep(new Keep(1, new[] { Five }));
+    Game.RollDice(new RollDice(1, 1));
+    Game.Keep(new KeepDice(1, 1, new[] { One }));
+
+
+    SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2 });
+
+    Game.RollDice(new RollDice(1, 1));
+    Game.Keep(new KeepDice(1, 1, new[] { Five }));
 
     // Assert
     State.Rolls.Should().HaveCount(2);

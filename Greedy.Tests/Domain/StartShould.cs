@@ -1,10 +1,10 @@
-using DiceGame.GameAggregate;
+using Greedy.GameAggregate;
 using FluentAssertions;
-using static DiceGame.GameAggregate.Commands;
-using static DiceGame.GameAggregate.GameEvents;
-using static DiceGame.GameAggregate.GameStage;
+using static Greedy.GameAggregate.Command;
+using static Greedy.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.GameStage;
 
-namespace DiceGame.Tests.Domain;
+namespace Greedy.Tests.Domain;
 
 public class StartShould {
   [Fact]
@@ -18,7 +18,7 @@ public class StartShould {
 
     // Assert
     game.State.GameStage.Should().Be(Started);
-    game.State.Id.Should().Be(gameId);
+    game.State.Id.Should().Be((GameId)gameId);
   }
 
   [Fact]
@@ -30,7 +30,7 @@ public class StartShould {
     game.Start(new StartGame(1));
 
     // Assert
-    game.Events.Should().Contain(e => e is GameStarted);
+    game.Changes.Should().Contain(e => e is GameStarted);
   }
 
   [Fact]

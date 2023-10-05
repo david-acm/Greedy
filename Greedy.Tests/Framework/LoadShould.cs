@@ -1,7 +1,8 @@
-using DiceGame.GameAggregate;
+using Greedy.GameAggregate;
 using FluentAssertions;
+using static Greedy.GameAggregate.Command;
 
-namespace DiceGame.Tests.Framework;
+namespace Greedy.Tests.Framework;
 
 public class LoadShould {
   [Fact]
@@ -15,6 +16,6 @@ public class LoadShould {
 
     // Assert
     game.State.GameStage.Should().Be(GameStage.Started);
-    game.State.Id.Should().Be(events[0].Id);
+    game.State.Id.Should().Be((GameId)events[0].Id);
   }
 }

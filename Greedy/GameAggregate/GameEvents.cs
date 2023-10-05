@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
 using Ardalis.SmartEnum;
+using Eventuous;
 
-namespace DiceGame.GameAggregate;
+namespace Greedy.GameAggregate;
 
 public record Dice(IEnumerable<DiceValue> DiceValues) {
   public static Dice FromNewRoll(IRandom randomizer, int diceToRoll) {
@@ -24,13 +26,24 @@ public interface IRandom {
 }
 
 public static class GameEvents {
+
+  [EventType("V1.PlayedOutOfTurn")]
   public record PlayedOutOfTurn(int TriedToPlay, int ExpectedPlayer);
 
+  [EventType("V1.GameStarted")]
   public record GameStarted(int Id);
 
+  [EventType("V1.PlayerJoined")]
   public record PlayerJoined(int Id, string Name);
 
+  [EventType("V1.DiceRolled")]
   public record DiceRolled(int PlayerId, int[] Dice, Score TurnScore);
+  
+  [EventType("V1.DiceKept")]
+  public record DiceKept(int PlayerId, int[] Dice, int NewTurnScore);
+  
+  [EventType("V1.TurnPassed")]
+  public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore);
 }
 
 public sealed class DiceValue : SmartEnum<DiceValue, int> {

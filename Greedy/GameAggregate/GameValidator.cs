@@ -1,6 +1,6 @@
-using static DiceGame.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.GameEvents;
 
-namespace DiceGame.GameAggregate;
+namespace Greedy.GameAggregate;
 
 public static class GameValidator {
   public static void EnsurePreconditions(GameState state, object @event) {

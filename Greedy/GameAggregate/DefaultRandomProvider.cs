@@ -1,4 +1,4 @@
-namespace DiceGame.GameAggregate;
+namespace Greedy.GameAggregate;
 
 public class DefaultRandomProvider : IRandom {
   public int Next(int minValue, int maxValue) =>

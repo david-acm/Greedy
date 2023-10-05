@@ -1,4 +1,4 @@
-namespace DiceGame;
+namespace Greedy;
 
 public abstract class Validator {
   public abstract ValidationResult IsSatisfied();

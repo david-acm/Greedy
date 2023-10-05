@@ -1,52 +1,48 @@
 ﻿using System.Collections.Immutable;
-using static DiceGame.GameAggregate.Commands;
-using static DiceGame.GameAggregate.GameEvents;
-using static DiceGame.GameAggregate.GameStage;
-using static DiceGame.GameAggregate.GameValidator;
+using Eventuous;
+using static Greedy.GameAggregate.Command;
+using static Greedy.GameAggregate.GameEvents;
 
-namespace DiceGame.GameAggregate;
+namespace Greedy.GameAggregate;
 
-public class Game {
-  private readonly List<object> _events = new();
+public class Game : Aggregate<GameState> {
   private readonly IRandom      _randomProvider;
 
-  public Game(IRandom randomProvider = null!) {
+  public Game() : this(default!) {
+  }
+  public Game(IRandom? randomProvider) {
     _randomProvider = randomProvider ?? new DefaultRandomProvider();
   }
-
-  public GameState State { get; private set; } = new();
-
-  public IReadOnlyList<object> Events => _events.AsReadOnly();
 
   public void Start(StartGame startGame) => Apply(new GameStarted(startGame));
 
   public void JoinPlayer(JoinPlayer joinPlayer) =>
     Apply(new PlayerJoined(joinPlayer.Id, joinPlayer.Name));
 
-  public void RollDice(PlayerId playerId) {
+  public void RollDice(RollDice rollDice) {
     var roll = Dice.FromNewRoll(
       _randomProvider,
       GetNumberOfDiceToTrow());
     
     Apply(new DiceRolled(
-      playerId,
+      rollDice.PlayerId,
       roll.DiceValues.ToPrimitiveArray(),
       GetScoreAfterRoll(roll)));
   }
 
-  public void Pass(PlayerId playerId) {
+  public void Pass(PassTurn passTurn) {
     Apply(new TurnPassed(
-      playerId,
-      GetPlayerOrder(playerId),
-      GetScore(playerId)));
+      passTurn.PlayerId,
+      GetPlayerOrder(passTurn.PlayerId),
+      GetScore(passTurn.PlayerId)));
   }
+
+  public void Keep(KeepDice keepDice) =>
+    Apply(new DiceKept(keepDice.PlayerId, keepDice.DiceValues.ToPrimitiveArray(),
+      GetNewTurnScore(keepDice.DiceValues, State.TurnScore)));
 
   private int GetScore(PlayerId playerId) {
     return State.GameScoreFor(playerId) + State.TurnScore;
-  }
-
-  public void Load(IEnumerable<object> events) {
-    foreach (var @event in events) State = State.When(@event);
   }
 
   private ImmutableArray<Player> GetPlayerOrder(int playerId) {
@@ -55,28 +51,22 @@ public class Game {
     return newPlayerList;
   }
 
-  public void Keep(Keep keep) =>
-    Apply(new DiceKept(keep.PlayerId, keep.DiceValues.ToPrimitiveArray(),
-      GetNewTurnScore(keep.DiceValues, State.TurnScore)));
-
-  private int GetNumberOfDiceToTrow() =>
-    State.IsFirstRoll ? 6 : 6 - State.DiceKept.Length;
-
   private void Apply(object @event) {
     try
     {
-      EnsurePreconditions(State, @event);
+      GameValidator.EnsurePreconditions(
+        State, @event);
+      base.Apply(@event);
     }
     catch (PreconditionsFailedException e)
     {
-      _events.Add(e.Event);
+      AddChange(e.Event);
       throw;
     }
-
-    State = State.When(@event);
-    _events.Add(@event);
   }
   
+  private int GetNumberOfDiceToTrow() =>
+    State.IsFirstRoll ? 6 : 6 - State.DiceKept.Length;
   
   private static int GetNewTurnScore(IEnumerable<DiceValue> diceKept, int currentScore) {
     var dice = new Dice(diceKept);
@@ -95,7 +85,6 @@ public class Game {
     return new Score(currentScore + turnScore);
   }
   
-  
   private Score GetScoreAfterRoll(Dice dice) {
     var canKeepAnyDice = new CanKeepDice(dice).IsSatisfied();
 
@@ -103,9 +92,6 @@ public class Game {
   }
 }
 
-public record DiceKept(int PlayerId, int[] Dice, int NewTurnScore);
-
-public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore);
 
 public record Player(int Id, string Name);
 

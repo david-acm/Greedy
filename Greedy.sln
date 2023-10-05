@@ -1,8 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceGame", "DiceGame\DiceGame.csproj", "{5D0C1C9A-01CF-4F21-8E3A-997290F734DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greedy", "Greedy\Greedy.csproj", "{5D0C1C9A-01CF-4F21-8E3A-997290F734DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceGame.Tests", "DiceGame.Tests\DiceGame.Tests.csproj", "{36178C4F-8477-495A-92BC-D8AF1CC64B6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greedy.Tests", "Greedy.Tests\Greedy.Tests.csproj", "{36178C4F-8477-495A-92BC-D8AF1CC64B6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greedy.WebApi", "Greedy.WebApi\Greedy.WebApi.csproj", "{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +20,9 @@ Global
 		{36178C4F-8477-495A-92BC-D8AF1CC64B6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36178C4F-8477-495A-92BC-D8AF1CC64B6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36178C4F-8477-495A-92BC-D8AF1CC64B6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

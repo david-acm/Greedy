@@ -1,4 +1,4 @@
-namespace DiceGame.GameAggregate;
+namespace Greedy.GameAggregate;
 
 public static class EventExtensions {
   public static int[] ToPrimitiveArray(this IEnumerable<DiceValue> values) =>

@@ -1,12 +1,12 @@
-using DiceGame.GameAggregate;
-using DiceGame.Tests.Framework;
+using Greedy.GameAggregate;
+using Greedy.Tests.Framework;
 using FluentAssertions;
 using Xunit.Abstractions;
-using static DiceGame.GameAggregate.Commands;
-using static DiceGame.GameAggregate.DiceValue;
-using static DiceGame.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.Command;
+using static Greedy.GameAggregate.DiceValue;
+using static Greedy.GameAggregate.GameEvents;
 
-namespace DiceGame.Tests.Domain;
+namespace Greedy.Tests.Domain;
 
 public class PassShould : GameWithThreePlayersTest {
   public PassShould(ITestOutputHelper output) : base(output) {
@@ -15,8 +15,8 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void AllowPlayerToPass() {
     // Act
-    Game.RollDice(new PlayerId(1));
-    Game.Pass(new PlayerId(1));
+    Game.RollDice(new RollDice(1, 1));
+    Game.Pass(new PassTurn(1, 1));
 
     // Assert
     Events.Where(e => e is TurnPassed)
@@ -27,8 +27,8 @@ public class PassShould : GameWithThreePlayersTest {
   [Fact]
   public void NotAllowPlayerNotInTurnToPass() {
     // Act
-    Game.RollDice(new PlayerId(1));
-    var action = () => Game.Pass(new PlayerId(2));
+    Game.RollDice(new RollDice(1, 1));
+    var action = () => Game.Pass(new PassTurn(1, 2));
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
@@ -43,13 +43,13 @@ public class PassShould : GameWithThreePlayersTest {
   public void AddToGameScoreIfPlayerKeptTricks() {
     // Arrange
     SetupDiceToRoll(new List<int> { 1, 2, 3, 4, 5, 6 });
-    Game.RollDice(new PlayerId(1));
-    Game.Keep(new Keep(1, new[] { One }));
+    Game.RollDice(new RollDice(1, 1));
+    Game.Keep(new KeepDice(1, 1, new[] { One }));
     
     SetupDiceToRoll(new List<int> { 2, 2, 2, 4, 5, 6 });
-    Game.RollDice(new PlayerId(1));
-    Game.Keep(new Keep(1, new[] { Two, Two, Two }));
-    Game.Pass(1);
+    Game.RollDice(new RollDice(1, 1));
+    Game.Keep(new KeepDice(1, 1, new[] { Two, Two, Two }));
+    Game.Pass(new PassTurn(1, 1));
     
     // Assert
     var score = State.GameScoreFor(new PlayerId(1));
