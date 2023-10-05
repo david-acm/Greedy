@@ -26,7 +26,7 @@ public interface IRandom {
 }
 
 public static class GameEvents {
-  
+
   [EventType("V1.PlayedOutOfTurn")]
   public record PlayedOutOfTurn(int TriedToPlay, int ExpectedPlayer);
 
