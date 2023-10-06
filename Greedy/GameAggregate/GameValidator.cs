@@ -130,6 +130,22 @@ public class DiceAreTrips : Validator {
     destination.GroupBy(v => v).Count() == 1;
 }
 
+public class DiceAreStraight : Validator {
+  
+  private readonly IEnumerable<DiceValue> _dice;
+
+  public DiceAreStraight(Dice dice) {
+    _dice = dice.DiceValues;
+  }
+
+  public override ValidationResult IsSatisfied() =>
+    new(_dice.Count() == 4 && AllDiceHaveTheSameValue(_dice),
+      "Dice are not a straight");
+  
+  private static bool AllDiceHaveTheSameValue(IEnumerable<DiceValue> destination) =>
+    destination.GroupBy(v => v).Count() == 1;
+}
+
 public class PlayerIsInTurn : Validator {
   private readonly int       _playerId;
   private readonly GameState _state;
