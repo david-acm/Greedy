@@ -17,7 +17,7 @@ public class KeepShould : GameWithThreePlayersTest {
   public void OnlyAllowToKeepByThePlayerInTurn() {
     // Arrange
     Game.RollDice(new RollDice(1, 1));
-    var action = () => Game.Keep(new KeepDice(1, 2, new[]
+    var action = () => Game.KeepDice(new KeepDice(1, 2, new[]
     {
       Five,
       One
@@ -33,7 +33,7 @@ public class KeepShould : GameWithThreePlayersTest {
   public void OnlyAllowToKeepFivesAndOnes_WhenThePlayerDidntGetAnyOtherTricks() {
     // Arrange
     Game.RollDice(new RollDice(1, 1));
-    var action = () => Game.Keep(new KeepDice(1, 1, new[]
+    var action = () => Game.KeepDice(new KeepDice(1, 1, new[]
     {
       Four
     }));
@@ -51,7 +51,7 @@ public class KeepShould : GameWithThreePlayersTest {
       { 4, 4, 4, 2, 1, 2, 3 });
     Game.RollDice(new RollDice(1, 1));
 
-    var action = () => Game.Keep(new KeepDice(1, 1, new[]
+    var action = () => Game.KeepDice(new KeepDice(1, 1, new[]
     {
       Four,
       Four,
@@ -69,7 +69,7 @@ public class KeepShould : GameWithThreePlayersTest {
     // Arrange
     SetupDiceToRoll(new List<int>
       { 1, 2, 3, 4, 5, 6 });
-    var action = () => Game.Keep(new KeepDice(1, 1, new[]
+    var action = () => Game.KeepDice(new KeepDice(1, 1, new[]
     {
       One,
       Two,
@@ -106,7 +106,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     var diceToKeep = diceValues.Where(d => !last.Contains(d));
 
-    var action = () => Game.Keep(new KeepDice(1, 1, diceToKeep));
+    var action = () => Game.KeepDice(new KeepDice(1, 1, diceToKeep));
 
     //Act
     action.Should().Throw<PreconditionsFailedException>();
@@ -132,11 +132,11 @@ public class KeepShould : GameWithThreePlayersTest {
 
     var diceToKeep = diceValues.First(d => last.Contains(d) && d == One);
 
-    Game.Keep(new KeepDice(1, 1, new[] { diceToKeep }));
+    Game.KeepDice(new KeepDice(1, 1, new[] { diceToKeep }));
 
     diceToKeep = State.DiceKept.First();
 
-    var action = () => Game.Keep(new KeepDice(1, 1, new[] { diceToKeep }));
+    var action = () => Game.KeepDice(new KeepDice(1, 1, new[] { diceToKeep }));
 
     //Act
     action.Should().NotThrow<PreconditionsFailedException>();
@@ -153,7 +153,7 @@ public class KeepShould : GameWithThreePlayersTest {
 
     //Act
     Game.RollDice(new RollDice(1, 1));
-    var action = () => Game.Keep(new KeepDice(1, 1, diceToKeep));
+    var action = () => Game.KeepDice(new KeepDice(1, 1, diceToKeep));
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
@@ -170,7 +170,7 @@ public class KeepShould : GameWithThreePlayersTest {
     // Arrange
     SetupDiceToRoll(rolledDice);
     Game.RollDice(new RollDice(1, 1));
-    var action = () => Game.Keep(new KeepDice(1, 1, diceToKeep));
+    var action = () => Game.KeepDice(new KeepDice(1, 1, diceToKeep));
 
     // Assert
     action.Should().NotThrow<PreconditionsFailedException>();
@@ -185,7 +185,7 @@ public class KeepShould : GameWithThreePlayersTest {
     SetupDiceToRoll(new List<int>
       { 1, 2, 3, 4, 5, 6 });
     Game.RollDice(new RollDice(1, 1));
-    Game.Keep(new KeepDice(1, 1, new[] { One }));
+    Game.KeepDice(new KeepDice(1, 1, new[] { One }));
     
     SetupDiceToRoll(new List<int>
       { 2, 2, 3, 3, 4, 6 });
@@ -201,15 +201,30 @@ public class KeepShould : GameWithThreePlayersTest {
     // Arrange
     SetupDiceToRoll(new List<int> { 1, 2, 3, 4, 5, 6 });
     Game.RollDice(new RollDice(1, 1));
-    Game.Keep(new KeepDice(1, 1, new[] { One }));
+    Game.KeepDice(new KeepDice(1, 1, new[] { One }));
     
     SetupDiceToRoll(new List<int> { 1, 1, 3, 3, 4 });
     Game.RollDice(new RollDice(1, 1));
-    Game.Keep(new KeepDice(1, 1, new[] { One }));
+    Game.KeepDice(new KeepDice(1, 1, new[] { One }));
     
     // Assert
     State.TurnScore.Should()
       .Be(new Score(200));
+  }
+  
+  [Fact]
+  public void ResetDiceInTableCenterWhenAllDiceHaveBeenKept() {
+    // Arrange
+    SetupDiceToRoll(new List<int> { 1, 1, 1, 2, 3, 4 });
+    Game.RollDice(new RollDice(1, 1));
+    Game.KeepDice(new KeepDice(1, 1, new[] { One, One, One }));
+    
+    SetupDiceToRoll(new List<int> { 4, 4, 4 });
+    Game.RollDice(new RollDice(1, 1));
+    Game.KeepDice(new KeepDice(1, 1, new[] { Four, Four, Four }));
+    
+    // Assert
+    State.TableCenter.Should().HaveCount(6);
   }
 
   public static IEnumerable<object[]> TricksAndScore() {

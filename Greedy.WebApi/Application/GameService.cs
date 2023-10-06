@@ -25,12 +25,12 @@ public class GameService : CommandService<Game, GameState, GameId> {
     On<Command.KeepDice>()
       .InState(Existing)
       .GetId((cmd) => new GameId(cmd.GameId))
-      .Act((game, cmd) => game.Keep(cmd));
+      .Act((game, cmd) => game.KeepDice(cmd));
     
     
     On<Command.PassTurn>()
       .InState(Existing)
       .GetId((cmd) => new GameId(cmd.GameId))
-      .Act((game, cmd) => game.Pass(cmd));
+      .Act((game, cmd) => game.PassTurn(cmd));
   }
 }

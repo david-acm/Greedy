@@ -40,7 +40,7 @@ public record GameState : State<GameState> {
     {
       DiceKept = state.DiceKept.AddRange(Dice.FromValues(e.Dice).DiceValues),
       TurnScore = e.NewTurnScore,
-      TableCenter = state.TableCenter.RemoveRange(Dice.FromValues(e.Dice).DiceValues)
+      TableCenter = ImmutableArray<DiceValue>.Empty.AddRange(e.TableCenter.ToDiceValues())
     };
 
   private static GameState HandleTurnPassed(GameState state, TurnPassed e)
@@ -50,7 +50,8 @@ public record GameState : State<GameState> {
       ScoreTable = state.ScoreTable
         .SetItem(
           e.PlayerId,
-          e.GameScore)
+          e.GameScore),
+      TableCenter = state.TableCenter.AddRange(state.DiceKept)
     };
 
   private static GameState HandleDiceRolled(GameState state, DiceRolled e)

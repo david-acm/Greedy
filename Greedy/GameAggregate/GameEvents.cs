@@ -40,7 +40,7 @@ public static class GameEvents {
   public record DiceRolled(int PlayerId, int[] Dice, Score TurnScore);
   
   [EventType("V1.DiceKept")]
-  public record DiceKept(int PlayerId, int[] Dice, int NewTurnScore);
+  public record DiceKept(int PlayerId, int[] Dice, int[] TableCenter, int NewTurnScore);
   
   [EventType("V1.TurnPassed")]
   public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore);

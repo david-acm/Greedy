@@ -15,7 +15,7 @@ public class RollShould : GameWithThreePlayersTest {
   public void AllowPlayerToRoll() {
     // Act
     Game.RollDice(new RollDice(1, 1));
-    Game.Pass(new PassTurn(1, 1));
+    Game.PassTurn(new PassTurn(1, 1));
 
     // Assert
     State.Rolls.Should().HaveCount(1);
@@ -76,13 +76,13 @@ public class RollShould : GameWithThreePlayersTest {
     SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2, 3 });
     // Act
     Game.RollDice(new RollDice(1, 1));
-    Game.Keep(new KeepDice(1, 1, new[] { One }));
+    Game.KeepDice(new KeepDice(1, 1, new[] { One }));
 
 
     SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2 });
 
     Game.RollDice(new RollDice(1, 1));
-    Game.Keep(new KeepDice(1, 1, new[] { Five }));
+    Game.KeepDice(new KeepDice(1, 1, new[] { Five }));
 
     // Assert
     State.Rolls.Should().HaveCount(2);
