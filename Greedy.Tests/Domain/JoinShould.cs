@@ -1,7 +1,7 @@
 using Greedy.GameAggregate;
 using FluentAssertions;
 using static Greedy.GameAggregate.Command;
-using static Greedy.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.GameEvents.V1;
 
 namespace Greedy.Tests.Domain;
 

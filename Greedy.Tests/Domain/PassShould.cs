@@ -4,7 +4,7 @@ using FluentAssertions;
 using Xunit.Abstractions;
 using static Greedy.GameAggregate.Command;
 using static Greedy.GameAggregate.DiceValue;
-using static Greedy.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.GameEvents.V1;
 
 namespace Greedy.Tests.Domain;
 
@@ -32,11 +32,24 @@ public class PassShould : GameWithThreePlayersTest {
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
-    State.Rolls.Should().HaveCount(1);
     var playedOutOfTurn = Events.Should().ContainSingleEvent<PlayedOutOfTurn>();
     playedOutOfTurn.Should()
       .Be(
         new PlayedOutOfTurn(2, 1));
+  }
+  
+  
+  [Fact]
+  public void NotAllowPlayerToPassWithoutRolling() {
+    // Act
+    var action = () => Game.PassTurn(new PassTurn(1, 1));
+
+    // Assert
+    action.Should().Throw<PreconditionsFailedException>();
+    var playedOutOfTurn = Events.Should().ContainSingleEvent<PassedWithoutRolling>();
+    playedOutOfTurn.Should()
+      .Be(
+        new PassedWithoutRolling(1));
   }
   
   [Fact]

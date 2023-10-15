@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Eventuous;
+using static Greedy.GameAggregate.GameEvents;
 
 namespace Greedy.GameAggregate;
 
@@ -13,33 +14,35 @@ public class Game : Aggregate<GameState> {
     _randomProvider = randomProvider ?? new DefaultRandomProvider();
   }
 
-  public void Start(Command.StartGame startGame) => Apply(new GameEvents.GameStarted(startGame));
+  public void Start(Command.StartGame startGame) => Apply(new V1.GameStarted(startGame));
 
   public void JoinPlayer(Command.JoinPlayer joinPlayer) =>
-    Apply(new GameEvents.PlayerJoined(joinPlayer.Id, joinPlayer.Name));
+    Apply(new V1.PlayerJoined(joinPlayer.Id, joinPlayer.Name));
 
   public void RollDice(Command.RollDice rollDice) {
     var roll = Dice.FromNewRoll(
       _randomProvider,
       GetNumberOfDiceToTrow());
 
-    Apply(new GameEvents.DiceRolled(
+    Apply(new V2.DiceRolled(
       rollDice.PlayerId,
       roll.DiceValues.ToPrimitiveArray(),
-      GetScoreAfterRoll(roll)));
+      GetScoreAfterRoll(roll),
+      GameStage.Keeping));
   }
 
   public void PassTurn(Command.PassTurn passTurn) {
-    Apply(new GameEvents.TurnPassed(
+    Apply(new V1.TurnPassed(
       passTurn.PlayerId,
       GetPlayerOrder(passTurn.PlayerId),
       GetScore(passTurn.PlayerId)));
   }
 
   public void KeepDice(Command.KeepDice keepDice) =>
-    Apply(new GameEvents.DiceKept(keepDice.PlayerId, keepDice.DiceValues.ToPrimitiveArray(),
+    Apply(new V2.DiceKept(keepDice.PlayerId, keepDice.DiceValues.ToPrimitiveArray(),
       GetTableCenterDice(keepDice),
-      GetNewTurnScore(keepDice.DiceValues, State.TurnScore)));
+      GetNewTurnScore(keepDice.DiceValues, State.TurnScore),
+      GameStage.Rolling));
 
   private int[] GetTableCenterDice(Command.KeepDice keepDice) {
     var tableCenter = State.TableCenter
@@ -66,18 +69,19 @@ public class Game : Aggregate<GameState> {
     try
     {
       GameValidator.EnsurePreconditions(
-        State, @event);
+        this, @event);
       base.Apply(@event);
     }
     catch (PreconditionsFailedException e)
     {
+      ClearChanges();
       AddChange(e.Event);
+      base.Apply(@event);
       throw;
     }
   }
 
-  private int GetNumberOfDiceToTrow() =>
-    State.IsFirstRoll ? 6 : 6 - State.DiceKept.Length;
+  private int GetNumberOfDiceToTrow() => 6 - State.DiceKept.Length;
 
   private static int GetNewTurnScore(IEnumerable<DiceValue> diceKept, int currentScore) {
     var dice = new Dice(diceKept);
@@ -108,5 +112,6 @@ public record Player(int Id, string Name);
 
 public enum GameStage {
   None,
-  Started
+  Rolling, // TODO: Is it better to infer the state from the past events?
+  Keeping,
 }

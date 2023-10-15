@@ -1,5 +1,5 @@
-using Greedy.GameAggregate;
 using FluentAssertions;
+using Greedy.Tests.Framework;
 using Xunit.Abstractions;
 using static Greedy.GameAggregate.Command;
 using static Greedy.GameAggregate.DiceValue;
@@ -18,14 +18,14 @@ public class RollShould : GameWithThreePlayersTest {
     Game.PassTurn(new PassTurn(1, 1));
 
     // Assert
-    State.Rolls.Should().HaveCount(1);
-    var diceRolled = Events.Where(e => e is DiceRolled)
+    State.TableCenter.Should().HaveCount(6);
+    var diceRolled = Events.Where(e => e is V2.DiceRolled)
       .Should()
       .HaveCount(1)
       .And.Subject;
     diceRolled.Should()
       .ContainSingle(e =>
-        ((DiceRolled)e).PlayerId == 1);
+        ((V2.DiceRolled)e).PlayerId == 1);
   }
 
   [Fact]
@@ -35,18 +35,27 @@ public class RollShould : GameWithThreePlayersTest {
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
-    State.Rolls.Should().HaveCount(0);
-    var playedOutOfTurn = Events
-      .Where(e => e is PlayedOutOfTurn)
-      .Should()
-      .ContainSingle()
-      .And.Subject;
+    var playedOutOfTurn = Events.Should().ContainSingleEvent<V1.PlayedOutOfTurn>();
     playedOutOfTurn.Should()
-      .Satisfy(e =>
-        ((PlayedOutOfTurn)e).TriedToPlay    == 2 &&
-        ((PlayedOutOfTurn)e).ExpectedPlayer == 1);
+      .Be(new V1.PlayedOutOfTurn(2 , 1));
   }
 
+  
+  [Fact]
+  public void NotAllowPlayerToRollTwiceBeforeKeepingSomeDice() {
+    // Act
+    Game.RollDice(new RollDice(1, 1));
+    SetupDiceToRoll(new List<int>
+      { 4, 4, 4, 2, 1, 2, 3 });
+    var action = () => Game.RollDice(new RollDice(1, 1));
+
+    // Assert
+    action.Should().Throw<PreconditionsFailedException>();
+    State.TableCenter.Should().HaveCount(6);
+    var playedOutOfTurn = Events.Should().ContainSingleEvent<V1.RolledTwice>();
+    playedOutOfTurn!.Player.Should().Be(1);
+  }
+  
   [Fact]
   public void NotAllowNextPlayerToPlayUntilPlayerPasses() {
     // Act
@@ -58,34 +67,31 @@ public class RollShould : GameWithThreePlayersTest {
 
     // Assert
     action.Should().Throw<PreconditionsFailedException>();
-    State.Rolls.Should().HaveCount(1);
     var playedOutOfTurn = Events
-      .Where(e => e is PlayedOutOfTurn)
+      .Where(e => e is V1.PlayedOutOfTurn)
       .Should()
       .ContainSingle()
       .And.Subject;
     playedOutOfTurn.Should()
       .Satisfy(e =>
-        ((PlayedOutOfTurn)e).TriedToPlay    == 2 &&
-        ((PlayedOutOfTurn)e).ExpectedPlayer == 1);
+        ((V1.PlayedOutOfTurn)e).TriedToPlay    == 2 &&
+        ((V1.PlayedOutOfTurn)e).ExpectedPlayer == 1);
   }
 
   [Fact]
   public void RollOnlyAvailableDiceAtTheTableCenter() {
     // Arrange
-    SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2, 3 });
+    SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2 });
     // Act
     Game.RollDice(new RollDice(1, 1));
     Game.KeepDice(new KeepDice(1, 1, new[] { One }));
 
 
-    SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1, 2 });
+    SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1 });
 
     Game.RollDice(new RollDice(1, 1));
-    Game.KeepDice(new KeepDice(1, 1, new[] { Five }));
 
     // Assert
-    State.Rolls.Should().HaveCount(2);
-    State.LastRoll!.Dice.DiceValues.Should().HaveCount(5);
+    State.TableCenter!.Should().HaveCount(5);
   }
 }

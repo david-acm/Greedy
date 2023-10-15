@@ -1,6 +1,5 @@
 using Eventuous;
 using Greedy.GameAggregate;
-using Microsoft.AspNetCore.Mvc;
 using static Eventuous.ExpectedState;
 
 namespace Greedy.WebApi.Application;

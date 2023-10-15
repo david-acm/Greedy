@@ -7,10 +7,12 @@ public static class GenericCollectionAssertionsExtensions {
   public static TEvent? ContainSingleEvent<TEvent>(
     this GenericCollectionAssertions<object> assertion)
     where TEvent : class {
-    var @event = assertion.Subject.Where(e => e is TEvent);
-    @event.Should().ContainSingle();
+    var assertionSubject = assertion.Subject;
+    var events           = assertionSubject.ToList();
+    events.Should().ContainSingle(e => e is TEvent, because:
+      $"the items found were {string.Join(", ", events.Select(e => e.GetType().Name))}");
 
-    return @event.FirstOrDefault() as TEvent;
+    return events.FirstOrDefault() as TEvent;
   }
 
   public static void NotContainAnyEvent<TEvent>(

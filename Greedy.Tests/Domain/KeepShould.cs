@@ -2,6 +2,7 @@ using Greedy.GameAggregate;
 using Greedy.Tests.Framework;
 using FluentAssertions;
 using Xunit.Abstractions;
+using static Greedy.GameAggregate.GameEvents.V1;
 
 namespace Greedy.Tests.Domain;
 
@@ -22,7 +23,7 @@ public class KeepShould : GameWithThreePlayersTest {
     //Act
     action.Should().Throw<PreconditionsFailedException>();
     Events.Should()
-      .ContainSingleEvent<GameEvents.PlayedOutOfTurn>();
+      .ContainSingleEvent<PlayedOutOfTurn>();
   }
 
   [Fact]
@@ -104,7 +105,7 @@ public class KeepShould : GameWithThreePlayersTest {
       DiceValue.One, DiceValue.Two, DiceValue.Three, DiceValue.Four, DiceValue.Five, DiceValue.Six
     };
 
-    var last = State.LastRoll!.Dice.DiceValues;
+    var last = State.TableCenter!;
 
     var diceToKeep = diceValues.Where(d => !last.Contains(d));
 
@@ -130,7 +131,7 @@ public class KeepShould : GameWithThreePlayersTest {
       DiceValue.One
     };
 
-    var last = State.LastRoll!.Dice.DiceValues;
+    var last = State.TableCenter!;
 
     var diceToKeep = diceValues.First(d => last.Contains(d) && d == DiceValue.One);
 
@@ -165,10 +166,10 @@ public class KeepShould : GameWithThreePlayersTest {
   [Theory]
   [MemberData(nameof(TricksAndScore))]
   public void AddTurnScoreToPlayer(
-    string      reason,
-    int[]       rolledDice,
+    string                 reason,
+    int[]                  rolledDice,
     DiceValue[] diceToKeep,
-    int         expectedScore) {
+    int                    expectedScore) {
     // Arrange
     SetupDiceToRoll(rolledDice);
     Game.RollDice(new Command.RollDice(1, 1));
