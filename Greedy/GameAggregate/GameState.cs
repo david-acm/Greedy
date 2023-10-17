@@ -58,7 +58,9 @@ public record GameState : State<GameState> {
         .SetItem(
           e.PlayerId,
           e.GameScore),
-      TableCenter = state.TableCenter.AddRange(state.DiceKept)
+      TableCenter = state.TableCenter.AddRange(state.DiceKept),
+      GameStage = GameStage.Rolling,
+      DiceKept = state.TableCenter.Clear()
     };
 
   private static GameState HandleDiceRolled(GameState state, V1.DiceRolled e)

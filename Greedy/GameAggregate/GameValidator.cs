@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using static Greedy.GameAggregate.GameEvents;
 
 namespace Greedy.GameAggregate;
@@ -8,20 +9,20 @@ public static class GameValidator {
     var valid = @event switch
     {
       V1.GameStarted e => Validate(
-        state.GameStage == GameStage.None, 
-          new GameAlreadyStarted(e.Id)),
+        state.GameStage == GameStage.None,
+        new GameAlreadyStarted(e.Id)),
       V1.PlayerJoined => Validate(
-        state.GameStage == GameStage.Rolling, 
-          new GameHasNotStarted(state.GameStage)),
-      V1.DiceRolled e => 
+        state.GameStage == GameStage.Rolling,
+        new GameHasNotStarted(state.GameStage)),
+      V1.DiceRolled e =>
         new PlayerIsInTurn(state, e.PlayerId)
           .And(new SingleRoll(state, e.PlayerId))
           .IsSatisfied(),
-      V2.DiceRolled e => 
+      V2.DiceRolled e =>
         new PlayerIsInTurn(state, e.PlayerId)
           .And(new SingleRoll(state, e.PlayerId))
           .IsSatisfied(),
-      V1.TurnPassed e => 
+      V1.TurnPassed e =>
         new PlayerIsInTurn(state, e.PlayerId)
           .And(new PlayerCanPass(game, e.PlayerId))
           .IsSatisfied(),
@@ -47,17 +48,17 @@ public static class GameValidator {
 }
 
 public class SingleRoll : Validator {
-  private readonly GameState  _state;
-  private readonly int _playerId;
+  private readonly GameState _state;
+  private readonly int       _playerId;
 
   public SingleRoll(GameState state, int playerId) {
-    _state  = state;
+    _state    = state;
     _playerId = playerId;
   }
-  
+
   public override ValidationResult IsSatisfied()
     => new(_state.GameStage == GameStage.Rolling,
-          new V1.RolledTwice(_playerId));
+      new V1.RolledTwice(_playerId));
 }
 
 public class PlayerHasThoseDice : Validator {
@@ -127,7 +128,7 @@ public class CanKeepDice : Validator {
   public override ValidationResult IsSatisfied() {
     var diceContainOnesOrFives          = _dice.Any(d => d == DiceValue.One || d == DiceValue.Five);
     var thereAreThreeOrMoreRepeatedDice = _dice.GroupBy(d => d).MaxBy(d => d.Count())?.Count() >= 3;
-    
+
     return new(
       diceContainOnesOrFives || thereAreThreeOrMoreRepeatedDice,
       new DiceNotAllowedToBeKept("Dice are not ones or fives",
@@ -152,7 +153,6 @@ public class DiceAreTrips : Validator {
 }
 
 public class DiceAreStraight : Validator {
-  
   private readonly IEnumerable<DiceValue> _dice;
 
   public DiceAreStraight(Dice dice) {
@@ -162,7 +162,7 @@ public class DiceAreStraight : Validator {
   public override ValidationResult IsSatisfied() =>
     new(_dice.Count() == 4 && AllDiceHaveTheSameValue(_dice),
       "Dice are not a straight");
-  
+
   private static bool AllDiceHaveTheSameValue(IEnumerable<DiceValue> destination) =>
     destination.GroupBy(v => v).Count() == 1;
 }
@@ -182,16 +182,36 @@ public class PlayerIsInTurn : Validator {
 }
 
 public class PlayerCanPass : Validator {
-  private readonly int       _playerId;
+  private readonly int  _playerId;
   private readonly Game _game;
 
   public PlayerCanPass(Game game, int playerId) {
-    _game    = game;
+    _game     = game;
     _playerId = playerId;
   }
 
   public override ValidationResult IsSatisfied() =>
-    new(_game.Current.Last() is V2.DiceRolled || 
-        _game.Current.Last() is V2.DiceKept,
+    new(_game.Current.LastEventsWere(typeof(V2.DiceRolled)) ||
+        _game.Current.LastEventsWere(typeof(V2.DiceKept)),
       new V1.PassedWithoutRolling(_playerId));
+}
+
+public static class EnumerableExtensions {
+  public static bool LastEventsWere<T>(
+    this IEnumerable<T> events,
+    IList<Type>         expectedEvents) {
+    var itemList = events
+      .Where(i => i is not IErrorEvent)
+      .Select(e => e.GetType())
+      .Reverse()
+      .ToList();
+
+    return !expectedEvents.Where((t, index) => itemList[index] != t).Any();
+  }
+  
+  public static bool LastEventsWere<T>(
+    this IEnumerable<T> events,
+    Type         expectedEvent) {
+    return events.LastEventsWere(new[] { expectedEvent });
+  }
 }

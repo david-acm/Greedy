@@ -27,13 +27,6 @@ public interface IRandom {
 
 public static class GameEvents {
   public static class V1 {
-
-    [EventType("V1.PlayedOutOfTurn")]
-    public record PlayedOutOfTurn(int TriedToPlay, int ExpectedPlayer);
-
-    [EventType("V1.RolledTwice")]
-    public record RolledTwice(int Player);
-
     [EventType("V1.GameStarted")]
     public record GameStarted(int Id);
 
@@ -49,9 +42,14 @@ public static class GameEvents {
     [EventType("V1.TurnPassed")]
     public record TurnPassed(int PlayerId, ImmutableArray<Player> PlayerOrder, int GameScore);
     
+    [EventType("V1.PlayedOutOfTurn")]
+    public record PlayedOutOfTurn(int TriedToPlay, int ExpectedPlayer) : IErrorEvent;
+        
+    [EventType("V1.RolledTwice")]
+    public record RolledTwice(int Player) : IErrorEvent;
     
     [EventType("V1.PassedWithoutRolling")]
-    public record PassedWithoutRolling(int PlayerId);
+    public record PassedWithoutRolling(int PlayerId) : IErrorEvent;
   }
 
   public static class V2 {
@@ -64,6 +62,8 @@ public static class GameEvents {
   }
 }
 
+public interface IErrorEvent {
+}
 
 public sealed class DiceValue : SmartEnum<DiceValue, int> {
   public static readonly DiceValue One = new("⚀", 1);

@@ -51,7 +51,7 @@ public class Game : Aggregate<GameState> {
     {
       return tableCenter.ToPrimitiveArray();
     }
-    
+
     return State.TableCenter.AddRange(keepDice.DiceValues).ToPrimitiveArray();
   }
 
@@ -74,9 +74,7 @@ public class Game : Aggregate<GameState> {
     }
     catch (PreconditionsFailedException e)
     {
-      ClearChanges();
-      AddChange(e.Event);
-      base.Apply(@event);
+      base.Apply(e.Event);
       throw;
     }
   }
@@ -112,6 +110,6 @@ public record Player(int Id, string Name);
 
 public enum GameStage {
   None,
-  Rolling, // TODO: Is it better to infer the state from the past events?
+  Rolling,
   Keeping,
 }
