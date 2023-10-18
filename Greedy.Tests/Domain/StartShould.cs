@@ -1,7 +1,7 @@
 using Greedy.GameAggregate;
 using FluentAssertions;
 using static Greedy.GameAggregate.Command;
-using static Greedy.GameAggregate.GameEvents;
+using static Greedy.GameAggregate.GameEvents.V1;
 using static Greedy.GameAggregate.GameStage;
 
 namespace Greedy.Tests.Domain;
@@ -17,7 +17,7 @@ public class StartShould {
     game.Start(new StartGame(gameId));
 
     // Assert
-    game.State.GameStage.Should().Be(Started);
+    game.State.GameStage.Should().Be(Rolling);
     game.State.Id.Should().Be((GameId)gameId);
   }
 
