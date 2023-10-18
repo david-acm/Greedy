@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greedy.Tests", "Greedy.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greedy.WebApi", "Greedy.WebApi\Greedy.WebApi.csproj", "{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greedy.WebTests", "Greedy.WebTests\Greedy.WebTests.csproj", "{BBECCBAB-FF22-4D4B-80AA-DC275DADBD66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C7779D7-3DF6-4CE6-AB8E-E1817617BFB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBECCBAB-FF22-4D4B-80AA-DC275DADBD66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBECCBAB-FF22-4D4B-80AA-DC275DADBD66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBECCBAB-FF22-4D4B-80AA-DC275DADBD66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBECCBAB-FF22-4D4B-80AA-DC275DADBD66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
