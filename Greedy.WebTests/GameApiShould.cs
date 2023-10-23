@@ -8,35 +8,61 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Greedy.WebTests;
 
-public class GameStartShould : IClassFixture<GameApi> {
+public class GameApiShould : IClassFixture<GameApi> {
   private readonly HttpClient _client;
 
-  public GameStartShould(GameApi factory) {
+  public GameApiShould(GameApi factory) {
     _client = factory.CreateClient();
   }
 
   [Fact]
-  public async Task RecordStartEvent() {
+  public async Task AllowPlayerToRollDice() {
     // Arrange
-    var request = new { Id = 208 };
-    var games   = "/games";
-    var players = "/players";
+    const int gameId = 208;
 
     // Act
-    var result = await _client.PostAsJsonAsync(games, request);
-    result = await _client.PostAsJsonAsync(players,
-      new { GameId = 208, PlayerId = 1, PlayerName = "David" });
-    result = await _client.PostAsJsonAsync(players,
-      new { GameId = 208, PlayerId = 2, PlayerName = "Allison" });
-    result = await _client.PostAsJsonAsync("diceRolls",
-      new { GameId = 208, PlayerId = 1 });
-    result = await _client.PostAsJsonAsync("diceKeeps",
-      new { GameId = 208, PlayerId = 1, DiceValues = new [] {1} });
-    var content = await result.Content.ReadAsStringAsync();
+    await _client.PostAndEnsureOkStatusCode(
+      "/games",
+      new { Id = gameId }); 
+    
+    await _client.PostAndEnsureOkStatusCode(
+      "/players",
+      JoinPlayerRequest(playerId: 1, "David"));
+    
+    await _client.PostAndEnsureOkStatusCode(
+      "/players",
+      JoinPlayerRequest(playerId: 2, "Allison"));
+    
+    await _client.PostAndEnsureOkStatusCode(
+      "/diceRolls",
+      RollDice(playerId: 1));
+    
+    await _client.PostAndEnsureOkStatusCode(
+      "/diceKeeps",
+      KeepDice(playerId: 1, new[] { 1 }));
 
     // Assert
+    object JoinPlayerRequest(int playerId, string playerName) =>
+      new { GameId = gameId, PlayerId = playerId, PlayerName = playerName };
+
+    object RollDice(int playerId) =>
+      new { GameId = gameId, PlayerId = playerId };
+
+    object KeepDice(int playerId, int[] diceValues) =>
+      new { GameId = gameId, PlayerId = playerId, DiceValues = diceValues };
+  }
+}
+
+public static class HttpClientExtensions {
+  public static async Task<HttpResponseMessage> PostAndEnsureOkStatusCode(this HttpClient client, string route,
+    object                                                                                body) {
+    var result  = await client.PostAsJsonAsync(route, body);
+    var content = await result.Content.ReadAsStringAsync();
+
     result.IsSuccessStatusCode.Should()
       .BeTrue(because: $"Status code returned was: {result.StatusCode}, with reason: {result.ReasonPhrase} {content}");
+
+    return result;
   }
 }
 

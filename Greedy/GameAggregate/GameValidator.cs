@@ -1,4 +1,5 @@
 using Ardalis.GuardClauses;
+using Eventuous;
 using static Greedy.GameAggregate.GameEvents;
 
 namespace Greedy.GameAggregate;
@@ -100,10 +101,13 @@ public class DiceAreStair : Validator {
     );
 }
 
+[EventType("V1.GameAlreadyStarted")]
 internal record GameAlreadyStarted(int Id);
 
+[EventType("V1.GameHasNotStarted")]
 internal record GameHasNotStarted(GameStage GameStage);
 
+[EventType("V1.DiceNotAllowedToBeKept")]
 public record DiceNotAllowedToBeKept(string Reason, IEnumerable<int> Dice);
 
 public class DiceAreOnesOrFives : Validator {
