@@ -6,8 +6,8 @@ using static Greedy.GameAggregate.GameEvents.V1;
 
 namespace Greedy.Tests.Domain;
 
-public class KeepShould : GameWithThreePlayersTest {
-  public KeepShould(ITestOutputHelper helper)
+public class KeepDiceShould : GameWithThreePlayersTest {
+  public KeepDiceShould(ITestOutputHelper helper)
     : base(helper) {
   }
 
@@ -106,13 +106,11 @@ public class KeepShould : GameWithThreePlayersTest {
     };
 
     var last = State.TableCenter!;
-
     var diceToKeep = diceValues.Where(d => !last.Contains(d));
-
-    var action = () => Game.KeepDice(new Command.KeepDice(1, 1, diceToKeep));
+    var keepDiceAction = () => Game.KeepDice(new Command.KeepDice(1, 1, diceToKeep));
 
     //Act
-    action.Should().Throw<PreconditionsFailedException>();
+    keepDiceAction.Should().Throw<PreconditionsFailedException>();
     Events.Should()
       .ContainSingleEvent<DiceNotAllowedToBeKept>();
   }
@@ -131,9 +129,9 @@ public class KeepShould : GameWithThreePlayersTest {
       DiceValue.One
     };
 
-    var last = State.TableCenter!;
+    var tableCenter = State.TableCenter!;
 
-    var diceToKeep = diceValues.First(d => last.Contains(d) && d == DiceValue.One);
+    var diceToKeep = diceValues.First(d => tableCenter.Contains(d) && d == DiceValue.One);
 
     Game.KeepDice(new Command.KeepDice(1, 1, new[] { diceToKeep }));
 
@@ -192,6 +190,7 @@ public class KeepShould : GameWithThreePlayersTest {
     
     SetupDiceToRoll(new List<int>
       { 2, 2, 3, 3, 4, 6 });
+    // Act
     Game.RollDice(new Command.RollDice(1, 1));
     
     // Assert

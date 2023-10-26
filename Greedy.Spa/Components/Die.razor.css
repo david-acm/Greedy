@@ -1,0 +1,133 @@
+
+.panel {
+    position: relative;
+    height: calc(var(--dice-size)*2);
+    width: calc(var(--dice-size)*2);
+    margin: calc(var(--dice-size));
+    transform-style: preserve-3d;
+    perspective: calc(var(--dice-size)*8);
+}
+
+.side {
+    background-color: #f8ebd2;
+    color: #000000;
+    height: 100%;
+    width: 100%;
+    border-radius: 7%;
+    display: flex;
+    position: absolute;
+    justify-content: center;
+    border: #BBB 1px solid;
+    font-size: 20vh;
+    z-index: 1;
+    transform: translateZ(var(--dice-size));
+    opacity: 1;
+}
+
+.dice {
+    position: relative;
+    height: calc(var(--dice-size) * 2);
+    width: calc(var(--dice-size) * 2);
+    transform-style: preserve-3d;
+    transition: 2s;
+}
+
+.dice.solid {
+    /*transform: */
+    /*        translateY(calc(var(--dice-size) * 0.5));*/
+    /*translateZ(calc(var(--dice-size) * 0.5))*/
+    /*rotateX(45deg) */
+    /*rotateY(45deg)*/
+    /*rotateZ(45deg);*/
+    border-radius: 15%;
+    position: relative;
+    translate: 0 calc(var(--dice-size)*-2);
+    display: flex;
+    z-index: -1;
+    height: calc(var(--dice-size) * 1.99);
+    width: calc(var(--dice-size) * 1.99);
+}
+
+.dice.solid .side {
+    opacity: 1;
+    background: #f8ebd2;
+    transform: translateZ(calc(var(--dice-size) * 0.99));
+    border: none;
+}
+
+.pip {
+    display: block;
+    width: calc(var(--dice-size)/2.5);
+    height: calc(var(--dice-size)/2.5);
+    border-radius: 50%;
+    margin: 0.5vh;
+
+    background-color: #333;
+    box-shadow: inset 0 3px #111, inset 0 -3px #555;
+}
+
+.one {
+    rotate: x -90deg;
+    z-index: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.two {
+    rotate: y 180deg;
+    z-index: 2;
+    justify-content: space-between;
+}
+
+.two .pip:nth-of-type(2) {
+    align-self: flex-end;
+}
+
+.three {
+    rotate: y 90deg;
+    z-index: 3;
+    justify-content: space-between;
+}
+
+.three .pip:nth-of-type(2) {
+    align-self: center;
+}
+
+.three .pip:nth-of-type(3) {
+    align-self: flex-end;
+}
+
+.four,
+.five,
+.six {
+    display: flex;
+    justify-content: space-between;
+}
+
+.four .column,
+.six .column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.five {
+    rotate: y -90deg;
+    z-index: 5;
+    justify-content: space-between;
+}
+
+.five .column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.five .column:nth-of-type(2) {
+    justify-content: center;
+}
+
+.six {
+    rotate: x 90deg;
+    z-index: 6;
+}

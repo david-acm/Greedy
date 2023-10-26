@@ -1,0 +1,133 @@
+﻿@page "/die"
+@inject ILogger<Die> Logger;
+
+<PageTitle>Die</PageTitle>
+
+@* <h1>Faces</h1> *@
+
+<div class="panel" id="@_id" @onmousemove="MouseRotate">
+
+  <div class="dice">
+    <div class="side one">
+      <span class="pip"></span>
+    </div>
+    <div class="side two">
+      <span class="pip"></span>
+      <span class="pip"></span>
+    </div>
+    <div class="side three">
+      <span class="pip"></span>
+      <span class="pip"></span>
+      <span class="pip"></span>
+    </div>
+    <div class="side four">
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+    </div>
+    <div class="side five">
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+      <div class="column">
+        <span class="pip"></span>
+      </div>
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+    </div>
+    <div class="side six">
+
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dice solid">
+    <div class="side one"></div>
+    <div class="side two"></div>
+    <div class="side three"></div>
+    <div class="side four"></div>
+    <div class="side five"></div>
+    <div class="side six"></div>
+  </div>
+</div>
+
+@* <button class="btn btn-primary" @onmousemove="Animate">Click me</button> *@
+
+@code {
+  private int z = 0;
+  private int y = 0;
+  private int x = 0;
+  private string _id;
+
+  [Parameter]
+  public int Number { get; set; }
+
+  protected override async Task OnInitializedAsync() {
+    _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
+    switch (Number)
+    {
+      case 1:
+        Rotate(105, 0, 15);
+        break;
+      case 3:
+        Rotate(15, 255, 0);
+        break;
+      case 2:
+        Rotate(15, 165, 0);
+        break;
+      case 4:
+        Rotate(15, -15, 0);
+        break;
+      case 5:
+        Rotate(15, 75, 0);
+        break;
+      case 6:
+        Rotate(-75, 0, -15);
+        break;
+    }
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private void Rotate(int x, int y, int z) {
+    this.x = x;
+    this.z = z;
+    this.y = y;
+  }
+
+  private void Loop() => new Timer(_ => { InvokeAsync(async () => { StateHasChanged(); }); }, null, 0, 200);
+
+  private void MouseRotate(MouseEventArgs e) {
+    z = (int)e.ClientY * 2;
+    y = (int)e.ClientX * 2;
+    Logger.LogInformation($"{z}, {y}");
+  }
+
+}
+
+<style>
+    #@($"{_id}.panel .dice") {
+      transform-style: preserve-3d;
+      transform:
+        rotateX(@($"{x}deg"))
+        rotateY(@($"{y}deg"))
+        rotateZ(@($"{z}deg"));
+    }
+</style>

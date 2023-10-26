@@ -1,0 +1,18 @@
+<h3>Dice</h3>
+
+<div style="display: flex; flex-wrap: wrap">
+  @if (DiceValues != null)
+  {
+    foreach (var value in DiceValues)
+    {
+      <Die Number=@value></Die>
+    }
+  }
+</div>
+
+@code {
+  
+  [Parameter]
+  public int[]? DiceValues { get; set; }
+  
+}
