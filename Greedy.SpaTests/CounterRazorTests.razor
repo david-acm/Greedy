@@ -1,4 +1,6 @@
 @using FluentAssertions
+@using AngleSharp.Dom
+@using System.Text.RegularExpressions
 @inherits TestContext
 
 These tests are written entirely in razor and C# syntax.
@@ -7,14 +9,41 @@ Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating
 
 @code {
 
-  [Fact]
-  public void IsOfClassFace() {
+  [Theory]
+  [InlineData(1, 105, 0, 15)]
+  [InlineData(3, 15, 255, 0)]
+  [InlineData(2, 15, 165, 0)]
+  [InlineData(4, 15, -15, 0)]
+  [InlineData(5, 15, 75, 0)]
+  [InlineData(6, -75, 0, -15)]
+  public void IsOfClassFace(int number,
+    int xRotationExpected,
+    int yRotationExpected,
+    int zRotationExpected) {
     // Arrange
-    var cut = Render(@<Die/>);
+    var cut = Render(@<Die Number="@number"/>);
 
     // Assert that content of the paragraph shows counter at zero
-    var face = cut.Find("div");
-    face.ClassName.Should().Be("face");
+    var innerHtml = cut.Find("style").InnerHtml;
+    TryGetNumberFrom(@"rotateX\((-?\d+)deg\)", innerHtml, out var xRotation);
+    TryGetNumberFrom(@"rotateY\((-?\d+)deg\)", innerHtml, out var yRotation);
+    TryGetNumberFrom(@"rotateZ\((-?\d+)deg\)", innerHtml, out var zRotation);
+    xRotation.Should().Be(xRotationExpected);
+    yRotation.Should().Be(yRotationExpected);
+    zRotation.Should().Be(zRotationExpected);
+  }
+
+  private bool TryGetNumberFrom(string pattern, string text, out int result) {
+    
+    // var pattern = @"rotate\((\d+)deg\)";
+    result = 0;
+
+    var match = Regex.Match(text, pattern);
+
+    if (!match.Success) return false;
+    var number = match.Groups[1].Value;
+
+    return int.TryParse(number, out result);
   }
 
 }

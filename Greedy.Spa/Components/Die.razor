@@ -82,19 +82,28 @@
 
   protected override async Task OnInitializedAsync() {
     _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
+    UpdateValue();
+    await InvokeAsync(StateHasChanged);
+  }
+
+  protected override void OnParametersSet() => UpdateValue();
+
+  private void UpdateValue() {
+    var rnd = new Random();
+    var spins = 0;//rnd.Next(0, 5);
     switch (Number)
     {
       case 1:
-        Rotate(105, 0, 15);
+        Rotate(105 + (spins * 360), 0, 15+ (spins * 360));
         break;
       case 3:
-        Rotate(15, 255, 0);
+        Rotate(15+ (spins * 360), 255+ (spins * 360), 0);
         break;
       case 2:
-        Rotate(15, 165, 0);
+        Rotate(15+ (spins * 360), 165+ (spins * 360), 0);
         break;
       case 4:
-        Rotate(15, -15, 0);
+        Rotate(15+ (spins * 360), -15+ (spins * 360), 0);
         break;
       case 5:
         Rotate(15, 75, 0);
@@ -103,7 +112,6 @@
         Rotate(-75, 0, -15);
         break;
     }
-    await InvokeAsync(StateHasChanged);
   }
 
   private void Rotate(int x, int y, int z) {
