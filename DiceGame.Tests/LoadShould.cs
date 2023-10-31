@@ -8,6 +8,8 @@ public class LoadShould {
   public void LoadGameFromDB() {
     // Arrange
     var mock    = new Mock<IEventStore>();
+    mock.Setup(m => m.Load<It.IsAnyType>(It.IsAny<int>()))
+      .Returns(new object[] { new GameStarted(1)});
     var service = new GameService(mock.Object);
 
     // Act

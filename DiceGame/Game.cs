@@ -21,18 +21,18 @@ public class Game {
 
   public void Load(object[] gameEvents) {
 
-    foreach (var @event in gameEvents)
-    {
-      var action = @event switch
-      {
-        GameStarted e => (Action)(() =>
-        {
-          Id    = e.GameId;
-          Stage = GameStage.Started;
-        })
-      };
-      action();
-    }
+    // foreach (var @event in gameEvents)
+    // {
+    //   var action = @event switch
+    //   {
+    //     GameStarted e => (Action)(() =>
+    //     {
+    //       Id    = e.GameId;
+    //       Stage = GameStage.Started;
+    //     })
+    //   };
+    //   action();
+    // }
   }
 
   public int Id { get; set; }

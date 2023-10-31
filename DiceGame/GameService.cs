@@ -15,10 +15,10 @@ public class GameService {
   }
 
   public Game JoinGame(int gameId,string name) {
-    var gameEvents = _store.Load<Game>(gameId);
+    // var gameEvents = _store.Load<Game>(gameId);
     var game = new Game();
 
-    game.Load(gameEvents);
+    // game.Load(gameEvents);
     
     game.JoinPlayer(name);
     
