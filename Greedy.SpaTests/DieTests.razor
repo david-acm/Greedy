@@ -13,10 +13,10 @@ Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating
   [InlineData(1, 105, 0, 15)]
   [InlineData(3, 15, 255, 0)]
   [InlineData(2, 15, 165, 0)]
-  [InlineData(4, 15, -15, 0)]
+  [InlineData(4, 15, 345, 0)]
   [InlineData(5, 15, 75, 0)]
   [InlineData(6, -75, 0, -15)]
-  public void IsOfClassFace(int number,
+  public void RotatesCorrectly(int number,
     int xRotationExpected,
     int yRotationExpected,
     int zRotationExpected) {
@@ -28,14 +28,13 @@ Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating
     TryGetNumberFrom(@"rotateX\((-?\d+)deg\)", innerHtml, out var xRotation);
     TryGetNumberFrom(@"rotateY\((-?\d+)deg\)", innerHtml, out var yRotation);
     TryGetNumberFrom(@"rotateZ\((-?\d+)deg\)", innerHtml, out var zRotation);
-    xRotation.Should().Be(xRotationExpected);
-    yRotation.Should().Be(yRotationExpected);
-    zRotation.Should().Be(zRotationExpected);
+    (xRotation % 360).Should().Be(xRotationExpected);
+    (yRotation % 360).Should().Be(yRotationExpected);
+    (zRotation % 360).Should().Be(zRotationExpected);
   }
 
   private bool TryGetNumberFrom(string pattern, string text, out int result) {
-    
-    // var pattern = @"rotate\((\d+)deg\)";
+  // var pattern = @"rotate\((\d+)deg\)";
     result = 0;
 
     var match = Regex.Match(text, pattern);

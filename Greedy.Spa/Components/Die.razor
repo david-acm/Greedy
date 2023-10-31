@@ -3,8 +3,6 @@
 
 <PageTitle>Die</PageTitle>
 
-@* <h1>Faces</h1> *@
-
 <div class="panel" id="@_id" @onmousemove="MouseRotate">
 
   <div class="dice">
@@ -69,47 +67,60 @@
   </div>
 </div>
 
-@* <button class="btn btn-primary" @onmousemove="Animate">Click me</button> *@
-
 @code {
   private int z = 0;
   private int y = 0;
   private int x = 0;
   private string _id;
+  private int _number = 0;
 
   [Parameter]
   public int Number { get; set; }
 
   protected override async Task OnInitializedAsync() {
     _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
-    UpdateValue();
-    await InvokeAsync(StateHasChanged);
+  // _number = Number;
+  // await InvokeAsync(StateHasChanged);
   }
 
-  protected override void OnParametersSet() => UpdateValue();
+  protected override void OnAfterRender(bool firstRender) {
+    if (_number != Number)
+    {
+      StateHasChanged();
+      UpdateValue();
+      Rotate();
+      base.OnAfterRender(false);
+    }
+  }
+
+  protected override bool ShouldRender() => _number != Number;
 
   private void UpdateValue() {
+    _number = Number;
+  }
+
+  private void Rotate() {
     var rnd = new Random();
-    var spins = 0;//rnd.Next(0, 5);
-    switch (Number)
+    var spins = rnd.Next(0, 5);
+    switch (_number)
     {
       case 1:
-        Rotate(105 + (spins * 360), 0, 15+ (spins * 360));
+        Rotate(105 + (spins * 360), 0, 15 + (spins * 360));
         break;
       case 3:
-        Rotate(15+ (spins * 360), 255+ (spins * 360), 0);
+        Rotate(15 + (spins * 360), 255 + (spins * 360), 0);
         break;
       case 2:
-        Rotate(15+ (spins * 360), 165+ (spins * 360), 0);
+        Rotate(15 + (spins * 360), 165 + (spins * 360), 0);
         break;
       case 4:
-        Rotate(15+ (spins * 360), -15+ (spins * 360), 0);
+        Rotate(15 + (spins * 360), 345 + (spins * 360), 0);
         break;
       case 5:
-        Rotate(15, 75, 0);
+        Rotate(15 + (spins * 360), 75 + (spins * 360), 0);
         break;
       case 6:
-        Rotate(-75, 0, -15);
+        Rotate(-75 + (spins * 360), 0, -15 + (spins * 360));
         break;
     }
   }
@@ -127,7 +138,6 @@
     y = (int)e.ClientX * 2;
     Logger.LogInformation($"{z}, {y}");
   }
-
 }
 
 <style>
