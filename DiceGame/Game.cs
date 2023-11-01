@@ -20,19 +20,23 @@ public class Game {
   public List<Player> Players { get; set; } = new();
 
   public void Load(object[] gameEvents) {
-
-    // foreach (var @event in gameEvents)
-    // {
-    //   var action = @event switch
-    //   {
-    //     GameStarted e => (Action)(() =>
-    //     {
-    //       Id    = e.GameId;
-    //       Stage = GameStage.Started;
-    //     })
-    //   };
-    //   action();
-    // }
+ //GameStarted, PlayerJoined
+    foreach (var @event in gameEvents)
+    {
+      var action = @event switch
+      {
+        GameStarted e => (Action)(() =>
+        {
+          Id    = e.GameId;
+          Stage = GameStage.Started;
+        }),
+        PlayerJoined e => () =>
+        {
+          
+        }
+      };
+      action();
+    }
   }
 
   public int Id { get; set; }
