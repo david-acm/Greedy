@@ -1,3 +1,6 @@
+:root {
+    --dice-size: 8vh;
+}
 
 .panel {
     position: relative;
@@ -18,7 +21,6 @@
     position: absolute;
     justify-content: center;
     border: #BBB 1px solid;
-    font-size: 20vh;
     z-index: 1;
     transform: translateZ(var(--dice-size));
     opacity: 1;
@@ -29,7 +31,7 @@
     height: calc(var(--dice-size) * 2);
     width: calc(var(--dice-size) * 2);
     transform-style: preserve-3d;
-    transition: 2s;
+    transition: 0.7s;
 }
 
 .dice.solid {

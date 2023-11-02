@@ -17,11 +17,13 @@
         <PackageReference Include="Eventuous.Extensions.DependencyInjection" Version="0.15.0-beta.5" />
         <PackageReference Include="Eventuous.Persistence" Version="0.15.0-beta.5" />
         <PackageReference Include="Eventuous.Shared" Version="0.15.0-beta.5" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Greedy.Spa\Greedy.Spa.csproj" />
       <ProjectReference Include="..\Greedy\Greedy.csproj" />
     </ItemGroup>
 

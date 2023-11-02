@@ -10,18 +10,18 @@ Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating
 @code {
 
   [Theory]
-  [InlineData(1, 105, 0, 15)]
-  [InlineData(3, 15, 255, 0)]
-  [InlineData(2, 15, 165, 0)]
-  [InlineData(4, 15, 345, 0)]
-  [InlineData(5, 15, 75, 0)]
-  [InlineData(6, -75, 0, -15)]
-  public void RotatesCorrectly(int number,
+  [InlineData(DiceValue.One, 105, 0, 15)]
+  [InlineData(DiceValue.Two, 15, 255, 0)]
+  [InlineData(DiceValue.Three, 15, 165, 0)]
+  [InlineData(DiceValue.Four, 15, 345, 0)]
+  [InlineData(DiceValue.Five, 15, 75, 0)]
+  [InlineData(DiceValue.Six, -75, 0, -15)]
+  public void RotatesCorrectly(DiceValue number,
     int xRotationExpected,
     int yRotationExpected,
     int zRotationExpected) {
     // Arrange
-    var cut = Render(@<Die Number="@number"/>);
+    var cut = Render(@<Die DiceValue="@number"/>);
 
     // Assert that content of the paragraph shows counter at zero
     var innerHtml = cut.Find("style").InnerHtml;

@@ -3,14 +3,10 @@
 <div style="display: flex; flex-wrap: wrap">
   @if (DiceValues != null)
   {
-    foreach (var value in DiceValues)
+    for (var index = 0; index < DiceValues.Count; index++)
     {
-      <Die Number=@value></Die>
+      var value = DiceValues[index];
+      <Die @key="index" DiceValue=@value Size="50"></Die>
     }
   }
 </div>
-
-@code {
-  [Parameter]
-  public int[]? DiceValues { get; set; }
-}

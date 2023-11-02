@@ -25,8 +25,11 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+app.MapFallbackToFile("index.html");
 
+app.UseHttpsRedirection();
 app.UseAuthorization();
 TypeMap.RegisterKnownEventTypes();
 app
