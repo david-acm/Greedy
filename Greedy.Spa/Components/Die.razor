@@ -1,5 +1,4 @@
 ﻿@page "/die"
-@inject ILogger<Die> Logger;
 
 <PageTitle>Die</PageTitle>
 
@@ -75,105 +74,10 @@
       @($"#{_id}.panel .dice") {
         transform-style: preserve-3d;
         transform:
-          rotateX(@($"{x}deg"))
-          rotateY(@($"{y}deg"))
-          rotateZ(@($"{z}deg"))
-          scale3d(@scale, @scale, @scale);
+          rotateX(@($"{_x}deg"))
+          rotateY(@($"{_y}deg"))
+          rotateZ(@($"{_z}deg"))
+          scale3d(@_scale, @_scale, @_scale);
       }
   </style>
 </div>
-
-@code {
-  private int z = 0;
-  private int y = 0;
-  private int x = 0;
-  private string _id;
-  private double scale = 1;
-  private DiceValue _number = DiceValue.None;
-
-  [Parameter]
-  public DiceValue DiceValue { get; set; }
-  
-  [Parameter]
-  public int Size { get; set; }
-
-  protected override async Task OnInitializedAsync() {
-    _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
-    await base.OnInitializedAsync();
-  }
-
-  protected override Task OnParametersSetAsync() {
-    if (_number is not DiceValue.None && _number != DiceValue)
-      RotateToValue();
-    return base.OnParametersSetAsync();
-  }
-
-  protected override void OnAfterRender(bool firstRender) {
-    if (firstRender)
-    {
-      DelayedRotateToValue();
-      return;
-    }
-    base.OnAfterRender(firstRender);
-  }
-
-  private void DelayedRotateToValue() {
-    new Timer(_ => { InvokeAsync(async () =>
-    {
-      RotateToValue();
-      StateHasChanged();
-    }); }, null, 0, -1);
-  }
-
-  private void RotateToValue() {
-    _number = DiceValue;
-    var rnd = new Random();
-    var spins = rnd.Next(0, 3);
-    switch (_number)
-    {
-      case DiceValue.One:
-        RotateDegrees(105 + (spins * 360), 0, 15 + (spins * 360));
-        break;
-      case DiceValue.Three:
-        RotateDegrees(15 + (spins * 360), 255 + (spins * 360), 0);
-        break;
-      case DiceValue.Two:
-        RotateDegrees(15 + (spins * 360), 165 + (spins * 360), 0);
-        break;
-      case DiceValue.Four:
-        RotateDegrees(15 + (spins * 360), 345 + (spins * 360), 0);
-        break;
-      case DiceValue.Five:
-        RotateDegrees(15 + (spins * 360), 75 + (spins * 360), 0);
-        break;
-      case DiceValue.Six:
-        RotateDegrees(-75 + (spins * 360), 0, -15 + (spins * 360));
-        break;
-    }
-  }
-
-  private void RotateDegrees(int x, int y, int z) {
-    this.x = x;
-    this.z = z;
-    this.y = y;
-  }
-
-  private void MouseEnter(MouseEventArgs e) {
-    RotateDegrees(x, y + 10, z + 10);
-    Scale(1.2);
-    StateHasChanged();
-    Logger.LogInformation($"Enter");
-  }
-
-  private void Scale(double d) {
-    scale = d;
-  }
-
-  private void MouseLeave(MouseEventArgs e) {
-    RotateDegrees(x, y - 10, z - 10);
-    Scale(1);
-    StateHasChanged();
-    Logger.LogInformation($"Leave");
-  }
-
-}
