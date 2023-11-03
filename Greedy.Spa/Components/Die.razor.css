@@ -36,7 +36,7 @@
     height: calc(var(--die-size) * 2);
     width: calc(var(--die-size) * 2);
     transform-style: preserve-3d;
-    transition: 1s;
+    transition: 1.4s;
 }
 
 .die.solid {
