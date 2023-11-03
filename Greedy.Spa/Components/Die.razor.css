@@ -1,14 +1,19 @@
 :root {
-    --dice-size: 8vh;
+    --die-size: 8vh;
 }
 
-.panel {
+.die-container {
     position: relative;
-    height: calc(var(--dice-size)*2);
-    width: calc(var(--dice-size)*2);
-    margin: calc(var(--dice-size));
+    height: calc(var(--die-size)*2);
+    width: calc(var(--die-size)*2);
+    margin: 0;
     transform-style: preserve-3d;
-    perspective: calc(var(--dice-size)*8);
+    perspective: calc(var(--die-size)*8);
+    padding: 0;
+}
+
+.draggable {
+    cursor: grab;
 }
 
 .side {
@@ -20,21 +25,21 @@
     display: flex;
     position: absolute;
     justify-content: center;
-    border: #BBB 1px solid;
+    border: #555 5px solid;
     z-index: 1;
-    transform: translateZ(var(--dice-size));
+    transform: translateZ(var(--die-size));
     opacity: 1;
 }
 
-.dice {
+.die {
     position: relative;
-    height: calc(var(--dice-size) * 2);
-    width: calc(var(--dice-size) * 2);
+    height: calc(var(--die-size) * 2);
+    width: calc(var(--die-size) * 2);
     transform-style: preserve-3d;
-    transition: 0.7s;
+    transition: 1s;
 }
 
-.dice.solid {
+.die.solid {
     /*transform: */
     /*        translateY(calc(var(--dice-size) * 0.5));*/
     /*translateZ(calc(var(--dice-size) * 0.5))*/
@@ -43,24 +48,24 @@
     /*rotateZ(45deg);*/
     border-radius: 15%;
     position: relative;
-    translate: 0 calc(var(--dice-size)*-2);
+    translate: 0 calc(var(--die-size)*-2);
     display: flex;
     z-index: -1;
-    height: calc(var(--dice-size) * 1.99);
-    width: calc(var(--dice-size) * 1.99);
+    height: calc(var(--die-size) * 1.99);
+    width: calc(var(--die-size) * 1.99);
 }
 
-.dice.solid .side {
+.die.solid .side {
     opacity: 1;
-    background: #f8ebd2;
-    transform: translateZ(calc(var(--dice-size) * 0.99));
+    background: #555;/*#f8ebd2;*/
+    transform: translateZ(calc(var(--die-size) * 0.99));
     border: none;
 }
 
 .pip {
     display: block;
-    width: calc(var(--dice-size)/2.5);
-    height: calc(var(--dice-size)/2.5);
+    width: calc(var(--die-size)/2.5);
+    height: calc(var(--die-size)/2.5);
     border-radius: 50%;
     margin: 0.5vh;
 

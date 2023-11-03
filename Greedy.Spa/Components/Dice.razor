@@ -1,12 +1,17 @@
 <h3>Dice</h3>
 
-<div style="display: flex; flex-wrap: wrap">
+<DragSurface>
   @if (DiceValues != null)
   {
-    for (var index = 0; index < DiceValues.Count; index++)
+    for (var index = 1; index <= DiceValues.Count; index++)
     {
-      var value = DiceValues[index];
-      <Die @key="index" DiceValue=@value Size="50"></Die>
+      var value = DiceValues[index-1];
+      
+      <Draggable 
+        InitialPosition="@(
+          (250 + 100 * index, index % 3 * 100 + 150))">
+        <Die @key="index" DiceValue=@value Size="50"></Die>
+      </Draggable>
     }
   }
-</div>
+</DragSurface>

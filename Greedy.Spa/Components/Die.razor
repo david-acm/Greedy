@@ -2,11 +2,11 @@
 
 <PageTitle>Die</PageTitle>
 
-<div class="panel" id="@_id"
+<div class="die-container"
+     id="@_id"
      @onmouseenter="MouseEnter"
      @onmouseleave="MouseLeave">
-
-  <div class="dice">
+  <div class="die">
     <div class="side one">
       <span class="pip"></span>
     </div>
@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <div class="dice solid">
+  <div class="die solid">
     <div class="side one"></div>
     <div class="side two"></div>
     <div class="side three"></div>
@@ -66,18 +66,18 @@
     <div class="side five"></div>
     <div class="side six"></div>
   </div>
-
   <style>
       :root {
-          --dice-size: @(Size)px;
+          --die-size: @(Size)px;
       }
-      @($"#{_id}.panel .dice") {
+      @($"#{_id}.die-container .die") {
         transform-style: preserve-3d;
         transform:
-          rotateX(@($"{_x}deg"))
-          rotateY(@($"{_y}deg"))
-          rotateZ(@($"{_z}deg"))
+          rotateX(@($"{AngleFor('x')}deg"))
+          rotateY(@($"{AngleFor('y')}deg"))
+          rotateZ(@($"{AngleFor('z')}deg"))
           scale3d(@_scale, @_scale, @_scale);
       }
-  </style>
+    </style>
+
 </div>

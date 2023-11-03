@@ -7,7 +7,7 @@ public interface IRotationCalculator {
 public class RotationCalculator : IRotationCalculator {
   public (int,int,int) CalculateFor(DiceValue diceValue) {
     var rnd         = new Random();
-    var spinDegrees = rnd.Next(0, 0) * 360;
+    var spinDegrees = rnd.Next(0, 3) * 360;
     return diceValue switch
     {
       DiceValue.One   => (105 + spinDegrees, 0, 15  + spinDegrees),
