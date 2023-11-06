@@ -1,22 +1,26 @@
 namespace Greedy.Spa.Components;
 
 public interface IRotationCalculator {
-  (int,int,int) CalculateFor(DiceValue diceValue);
+  (int, int, int) CalculateFor(DiceValue diceValue);
 }
 
 public class RotationCalculator : IRotationCalculator {
-  public (int,int,int) CalculateFor(DiceValue diceValue) {
-    var rnd         = new Random();
-    var spinDegrees = rnd.Next(0, 3) * 360;
+  public (int, int, int) CalculateFor(DiceValue diceValue) {
     return diceValue switch
     {
-      DiceValue.One   => (105 + spinDegrees, 0, 15  + spinDegrees),
-      DiceValue.Three => (15  + spinDegrees, 255    + spinDegrees, 0),
-      DiceValue.Two   => (15  + spinDegrees, 165    + spinDegrees, 0),
-      DiceValue.Four  => (15  + spinDegrees, 345    + spinDegrees, 0),
-      DiceValue.Five  => (15  + spinDegrees, 75     + spinDegrees, 0),
-      DiceValue.Six   => (-75 + spinDegrees, 0, -15 + spinDegrees),
-      _               => (0,0,0)
+      DiceValue.One   => AddSpinsTo(105, 0,   15),
+      DiceValue.Two   => AddSpinsTo(15,  165, 0),
+      DiceValue.Three => AddSpinsTo(15,  255, 0),
+      DiceValue.Four  => AddSpinsTo(15,  345, 0),
+      DiceValue.Five  => AddSpinsTo(15,  75,  0),
+      DiceValue.Six   => AddSpinsTo(285, 0,   345),
+      _               => (0, 0, 0)
     };
+  }
+
+  private static (int, int, int) AddSpinsTo(int x, int y, int z) {
+    var rnd         = new Random();
+    var spinDegrees = rnd.Next(-2, 2) * 360;
+    return (x + spinDegrees, y + spinDegrees, z + spinDegrees);
   }
 }

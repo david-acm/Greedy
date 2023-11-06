@@ -3,7 +3,7 @@
 }
 
 .die-container {
-    position: relative;
+    position: absolute;
     height: calc(var(--die-size)*2);
     width: calc(var(--die-size)*2);
     margin: 0;
@@ -36,6 +36,7 @@
     height: calc(var(--die-size) * 2);
     width: calc(var(--die-size) * 2);
     transform-style: preserve-3d;
+    transform-origin: center;
     transition: 1.4s;
 }
 
@@ -57,9 +58,17 @@
 
 .die.solid .side {
     opacity: 1;
-    background: #555;/*#f8ebd2;*/
+    /*background: #555;!*#f8ebd2;*!*/
     transform: translateZ(calc(var(--die-size) * 0.99));
     border: none;
+    
+    /*transform: translateZ(calc(var(--die-size) * 1.01)) rotateX(90deg);*/
+    /*border: none;*/
+    /*width: 50%;*/
+    /*height: 50%;*/
+    /*top: 25%;*/
+    /*left: 25%;*/
+    /*opacity: 0.8;*/
 }
 
 .pip {
@@ -79,12 +88,18 @@
     justify-content: center;
     align-items: center;
 }
-
+/*.solid .one, .solid .six {*/
+/*    background-color: green;*/
+/*}*/
 .two {
     rotate: y 180deg;
     z-index: 2;
     justify-content: space-between;
 }
+
+/*.solid .two, .solid .four {*/
+/*    background-color: green;*/
+/*}*/
 
 .two .pip:nth-of-type(2) {
     align-self: flex-end;
@@ -95,6 +110,10 @@
     z-index: 3;
     justify-content: space-between;
 }
+
+/*.solid .three, .solid .five {*/
+/*    background-color: red;*/
+/*}*/
 
 .three .pip:nth-of-type(2) {
     align-self: center;

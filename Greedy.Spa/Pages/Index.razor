@@ -27,7 +27,7 @@ Roll the dice and don't get Greedy!.
   private void Roll() {
     Values = string.Empty;
     var rnd = new Random();
-    for (int die = 1; die <= 6; die++)
+    for (var die = 1; die <= 6; die++)
     {
       Values += $"{(rnd.Next(1, 6))} ";
     }

@@ -9,7 +9,7 @@
       @($"#{_id}.draggable") {
       z-index: @(_mousedown ? 100 : 1);
       margin: 50px;
-      position: absolute;
+      position: relative;
         top: @_position.PositionFor('y')px;
         left: @_position.PositionFor('x')px;
       }

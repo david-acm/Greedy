@@ -11,7 +11,7 @@ public partial class Draggable {
     set
     {
       _mousePosition = value;
-      if(_mousedown)
+      if (_mousedown)
         Move();
     }
   }
@@ -19,10 +19,7 @@ public partial class Draggable {
   [Parameter]
   public Position InitialPosition
   {
-    set
-    {
-      _initialPosition = value;
-    }
+    set { _initialPosition = value; }
   }
 
   private Position _lastPosition = (0, 0);
@@ -61,7 +58,21 @@ public partial class Draggable {
 
   private void Move() {
     if (!_mousedown) return;
-    _position = _mousePosition - _offset;
+    var newPosition      = _mousePosition - _offset;
+    var newX = newPosition.PositionFor('x');
+    var newY = newPosition.PositionFor('y');
+    if (newX > 0 && newY > 0)
+    {
+      _position = newPosition;
+    }
+    else
+    {
+      var ease          = 50;
+      var normalized = newPosition / (ease,ease);
+      _position = newPosition / ((1,1) - normalized);
+      _position = (newX > 0 ? newX : newX / (1 - newX / ease),
+        (newY > 0 ? newY : newY / (1 - newY / ease)));
+    }
   }
 }
 
@@ -83,6 +94,7 @@ public class Position {
   public static Position PositionFrom(double x, double y) =>
     new(x, y);
 
+  public double DistanceFrom(Position p) => Math.Sqrt(Math.Pow((this - p)._x, 2) + Math.Pow((this - p)._y, 2));
   public static implicit operator (double, double)(Position p) => (p._x, p._y);
 
   public static implicit operator Position((double, double) p) => PositionFrom(p.Item1, p.Item2);
@@ -90,4 +102,8 @@ public class Position {
   public static Position operator +(Position p1, Position p2) => PositionFrom(p1._x + p2._x, p1._y + p2._y);
 
   public static Position operator -(Position p1, Position p2) => PositionFrom(p1._x - p2._x, p1._y - p2._y);
+  public static Position operator /(Position p1, Position p2) => PositionFrom(p1._x / p2._x, p1._y / p2._y);
+  public static Position operator *(Position p1, Position p2) => PositionFrom(p1._x * p2._x, p1._y * p2._y);
+  public static bool operator >(Position     p1, Position p2) => p1._x > p2._x && p1._y > p2._y;
+  public static bool operator <(Position     p1, Position p2) => p1._x < p2._x && p1._y < p2._y;
 }

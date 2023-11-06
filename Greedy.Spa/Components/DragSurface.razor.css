@@ -1,5 +1,5 @@
 .drag-surface {
-    display: flex;
+    display: inline-block;
     flex-wrap: wrap;
     height: 50vh;
     width: 100%;

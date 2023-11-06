@@ -1,13 +1,11 @@
+@using System.Drawing
 <DragSurface>
   @if (DiceValues != null)
   {
     for (var index = 1; index <= DiceValues.Count; index++)
     {
-      var value = DiceValues[index-1];
-      
-      <Draggable 
-        InitialPosition="@(
-          (250 + 100 * index, index % 3 * 100 + 150))">
+      var value = DiceValues[index - 1];
+      <Draggable InitialPosition="@((180 * (index - 1), 0))">
         <Die @key="index" DiceValue=@value Size="50"></Die>
       </Draggable>
     }

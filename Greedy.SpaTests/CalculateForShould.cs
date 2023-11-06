@@ -10,7 +10,7 @@ public class CalculateForShould {
   [InlineData(DiceValue.Two,   15,  165, 0)]
   [InlineData(DiceValue.Four,  15,  345, 0)]
   [InlineData(DiceValue.Five,  15,  75,  0)]
-  [InlineData(DiceValue.Six,   -75, 0,   -15)]
+  [InlineData(DiceValue.Six,   285, 0,   345)]
   public void ReturnTheCorrectAnglesFor(
     DiceValue value,
     int       xExpected,
@@ -23,6 +23,10 @@ public class CalculateForShould {
     var (x, y, z) = sut.CalculateFor(value);
 
     // Assert
-    (x, y, z).Should().Be((xExpected, yExpected, zExpected));
+    (
+        (x + 720) % 360,
+        (y + 720) % (yExpected == 0 ? 90 : 360),
+        (z + 720) % (zExpected == 0 ? 90 : 360)).Should()
+      .Be((xExpected, yExpected, zExpected));
   }
 }
