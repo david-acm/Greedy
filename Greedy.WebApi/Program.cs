@@ -16,7 +16,21 @@ builder.Services.AddCommandService<GameService, Game>();
 builder.Services.AddEventStoreClient("esdb://localhost:2113?tls=false");
 builder.Services.AddAggregateStore<EsdbEventStore>();
 
+const string MyAllowSpecificOrigins = "MyAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy(name: MyAllowSpecificOrigins,
+    policy  =>
+    {
+      policy.WithOrigins("http://localhost:5186")
+        .AllowAnyHeader()
+        .AllowAnyMethod();;
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -29,7 +43,7 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseAuthorization();
 TypeMap.RegisterKnownEventTypes();
 app
@@ -67,4 +81,5 @@ app
         cmd.GameId,
         cmd.PlayerId))
   ;
+
 app.Run();

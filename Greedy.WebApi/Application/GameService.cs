@@ -2,7 +2,6 @@ using Eventuous;
 using Greedy.GameAggregate;
 using static Eventuous.CommandServiceDelegates;
 using static Eventuous.ExpectedState;
-using Eventuous;
 
 namespace Greedy.WebApi.Application;
 

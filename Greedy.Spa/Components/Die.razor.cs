@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Components.Web;
 namespace Greedy.Spa.Components;
 
 public partial class Die {
-  private (int, int, int)  _rotation;
-  private string           _id;
-  private double           _scale = 1;
-  private DiceValue        _number = DiceValue.None;
+  private (int, int, int) _rotation;
+  private string          _id;
+  private double          _scale  = 1;
+  private DiceValue       _number = DiceValue.None;
 
   [Parameter] public DiceValue DiceValue { get; set; }
 
@@ -19,43 +19,48 @@ public partial class Die {
     _   => 0
   };
 
-  [Parameter] public int                 Size                { get; set; } = 50;
-  [Inject]    public ILogger<Die>        Logger              { get; set; }
-  [Inject]    public IRotationCalculator _rotationCalculator { get; set; }
+  [Parameter] public int     Size  { get; set; } = 50;
+  [Parameter] public string? Class { get; set; }
+
+  [Inject] public ILogger<Die>        Logger              { get; set; }
+  [Inject] public IRotationCalculator _rotationCalculator { get; set; }
 
 
   protected override async Task OnInitializedAsync() {
     _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
+    RotateToValue();
     await base.OnInitializedAsync();
   }
 
   protected override Task OnParametersSetAsync() {
-    if (_number is not DiceValue.None && _number != DiceValue)
+    if (_number != DiceValue.None && _number != DiceValue)
     {
       RotateToValue();
     }
+
     return base.OnParametersSetAsync();
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender) {
     if (firstRender)
     {
-      await DelayedRotateToValue();
+      // await DelayedRotateToValue();
+      // RotateToValue();
     }
 
     await base.OnAfterRenderAsync(firstRender);
   }
 
-  private async Task DelayedRotateToValue() {
-    _ = new Timer(async _ =>
-    {
-      await InvokeAsync(async () =>
-      {
-        RotateToValue();
-        StateHasChanged();
-      });
-    }, null, 0, -1);
-  }
+  // private async Task DelayedRotateToValue() {
+  //   _ = new Timer(async _ =>
+  //   {
+  //     await InvokeAsync(async () =>
+  //     {
+  //       RotateToValue();
+  //       StateHasChanged();
+  //     });
+  //   }, null, 0, -1);
+  // }
 
   private void RotateToValue() {
     _number = DiceValue;
@@ -73,14 +78,14 @@ public partial class Die {
     Scale(1);
     StateHasChanged();
   }
-  
+
   private void MouseEnter(MouseEventArgs e) {
     var (x, y, z) = _rotation;
     SetRotationTo((x, y + 10, z + 10));
     Scale(1.4);
     StateHasChanged();
   }
-  
+
   private void Scale(double scale) {
     _scale = scale;
   }

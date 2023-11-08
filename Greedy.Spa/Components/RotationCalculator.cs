@@ -6,14 +6,14 @@ public interface IRotationCalculator {
 
 public class RotationCalculator : IRotationCalculator {
   public (int, int, int) CalculateFor(DiceValue diceValue) {
-    return diceValue switch
+    return diceValue.Value switch
     {
-      DiceValue.One   => AddSpinsTo(105, 0,   15),
-      DiceValue.Two   => AddSpinsTo(15,  165, 0),
-      DiceValue.Three => AddSpinsTo(15,  255, 0),
-      DiceValue.Four  => AddSpinsTo(15,  345, 0),
-      DiceValue.Five  => AddSpinsTo(15,  75,  0),
-      DiceValue.Six   => AddSpinsTo(285, 0,   345),
+      1   => AddSpinsTo(105, 0,   15),
+      2   => AddSpinsTo(15,  165, 0),
+      3 => AddSpinsTo(15,  255, 0),
+      4  => AddSpinsTo(15,  345, 0),
+      5  => AddSpinsTo(15,  75,  0),
+      6   => AddSpinsTo(285, 0,   345),
       _               => (0, 0, 0)
     };
   }

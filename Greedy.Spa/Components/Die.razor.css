@@ -3,7 +3,7 @@
 }
 
 .die-container {
-    position: absolute;
+    position: relative;
     height: calc(var(--die-size)*2);
     width: calc(var(--die-size)*2);
     margin: 0;
@@ -58,7 +58,7 @@
 
 .die.solid .side {
     opacity: 1;
-    /*background: #555;!*#f8ebd2;*!*/
+    background: #555;/*#f8ebd2;*/
     transform: translateZ(calc(var(--die-size) * 0.99));
     border: none;
     

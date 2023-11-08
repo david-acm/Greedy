@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using DotNet.Testcontainers.Builders;
 using FluentAssertions;
-using Greedy.GameAggregate;
 using Greedy.WebApi.Application;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -33,7 +32,7 @@ public class GameApiShould : IClassFixture<GameApi> {
       "/players",
       JoinPlayerRequest(playerId: 2, "Allison"));
     
-    await _client.PostAndEnsureOkStatusCode(
+    var roll = await _client.PostAndEnsureOkStatusCode(
       "/diceRolls",
       RollDice(playerId: 1));
     

@@ -7,7 +7,7 @@ public partial class Draggable {
   [CascadingParameter]
   public Position MousePosition
   {
-    get => _mousePosition - _offset;
+    get => _mousePosition - _dragOffset;
     set
     {
       _mousePosition = value;
@@ -22,88 +22,70 @@ public partial class Draggable {
     set { _initialPosition = value; }
   }
 
-  private Position _lastPosition = (0, 0);
-  private Position _offset       = (0, 0);
-  private bool     _mousedown;
-  private string   _id;
-  private Position _mousePosition = (0, 0);
-  private Position _position      = (0, 0);
-  private Position _initialPosition;
+  private bool   _mousedown;
+  private string _id;
+
+  private Position _dragOffset      = (0, 0);
+  private Position _lastPosition    = (0, 0);
+  private Position _mousePosition   = (0, 0);
+  private Position _position        = (0, 0);
+  private Position _initialPosition = (0, 0);
 
   [Inject] public ILogger<Die> Logger { get; set; }
 
   [Parameter] public RenderFragment? ChildContent { get; set; }
 
   protected override async Task OnInitializedAsync() {
-    _id           = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
+    _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
+
     _lastPosition = _initialPosition;
     _position     = _initialPosition;
   }
 
-
-  private void HanldeMouseDown(MouseEventArgs e) {
+  private void HandleMouseDown(MouseEventArgs e) {
     if (e.Button != 0) return;
-    _mousedown = true;
-    _offset    = (e.ClientX, e.ClientY) - _lastPosition;
-    Logger.LogInformation(nameof(HanldeMouseDown));
+    _mousedown  = true;
+    _dragOffset = (e.ClientX, e.ClientY) - _lastPosition;
+    Logger.LogInformation(nameof(HandleMouseDown));
   }
 
   private void HandleMouseUp(MouseEventArgs e) {
     if (e.Button != 0) return;
     _mousedown    = false;
-    _lastPosition = (e.ClientX, e.ClientY) - _offset;
-    _offset       = (0, 0);
+    _lastPosition = (e.ClientX, e.ClientY) - _dragOffset;
+    _dragOffset   = (0, 0);
     Logger.LogInformation(nameof(HandleMouseUp));
   }
 
   private void Move() {
     if (!_mousedown) return;
-    var newPosition      = _mousePosition - _offset;
-    var newX = newPosition.PositionFor('x');
-    var newY = newPosition.PositionFor('y');
-    if (newX > 0 && newY > 0)
+    var newPosition = _mousePosition - _dragOffset;
+    if (HasReachedBorder(newPosition))
     {
-      _position = newPosition;
+      _position = EaseMovement(newPosition);
+      return;
     }
-    else
-    {
-      var ease          = 50;
-      var normalized = newPosition / (ease,ease);
-      _position = newPosition / ((1,1) - normalized);
-      _position = (newX > 0 ? newX : newX / (1 - newX / ease),
-        (newY > 0 ? newY : newY / (1 - newY / ease)));
-    }
-  }
-}
 
-public class Position {
-  private readonly double _x;
-  private readonly double _y;
-
-  public double PositionFor(char a) => a switch
-  {
-    'x' => _x,
-    'y' => _y
-  };
-
-  public Position(double x, double y) {
-    _x = x;
-    _y = y;
+    _position = newPosition;
   }
 
-  public static Position PositionFrom(double x, double y) =>
-    new(x, y);
+  private Position EaseMovement(Position position) {
+    var easeDistance       = 50;
+    var newX       = position.PositionFor('x');
+    var newY       = position.PositionFor('y');
+    
+    var normalized = position / (easeDistance, easeDistance);
+    _position = position / ((1, 1) - normalized);
+    
+    var x = newX > 0 ? newX : newX / (1 - newX / easeDistance);
+    var y = newY > 0 ? newY : newY / (1 - newY / easeDistance);
+    
+    return (x, y);
+  }
 
-  public double DistanceFrom(Position p) => Math.Sqrt(Math.Pow((this - p)._x, 2) + Math.Pow((this - p)._y, 2));
-  public static implicit operator (double, double)(Position p) => (p._x, p._y);
-
-  public static implicit operator Position((double, double) p) => PositionFrom(p.Item1, p.Item2);
-
-  public static Position operator +(Position p1, Position p2) => PositionFrom(p1._x + p2._x, p1._y + p2._y);
-
-  public static Position operator -(Position p1, Position p2) => PositionFrom(p1._x - p2._x, p1._y - p2._y);
-  public static Position operator /(Position p1, Position p2) => PositionFrom(p1._x / p2._x, p1._y / p2._y);
-  public static Position operator *(Position p1, Position p2) => PositionFrom(p1._x * p2._x, p1._y * p2._y);
-  public static bool operator >(Position     p1, Position p2) => p1._x > p2._x && p1._y > p2._y;
-  public static bool operator <(Position     p1, Position p2) => p1._x < p2._x && p1._y < p2._y;
+  private static bool HasReachedBorder(Position position) {
+    var newX = position.PositionFor('x');
+    var newY = position.PositionFor('y');
+    return !(newX > 0) || !(newY > 0);
+  }
 }

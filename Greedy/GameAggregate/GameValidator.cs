@@ -1,4 +1,3 @@
-using Ardalis.GuardClauses;
 using Eventuous;
 using static Greedy.GameAggregate.GameEvents;
 

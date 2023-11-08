@@ -1,10 +1,8 @@
 @using FluentAssertions
-@using AngleSharp.Dom
 @using System.Text.RegularExpressions
-@using AutoFixture
-@using AutoFixture.AutoMoq
 @using AutoFixture.Xunit2
 @using Moq
+@using System.ComponentModel.DataAnnotations
 @inherits TestContext
 
 These tests are written entirely in razor and C# syntax.
@@ -16,19 +14,20 @@ Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating
   [Theory]
   [AutoData]
   public void RotatesCorrectly(
-    DiceValue value,
+    [Range(1,6)]int value,
     int xExpected,
     int yExpected,
     int zExpected) {
   // Arrange
     var mock = Mock.Of<IRotationCalculator>();
+    var diceValue = DiceValue.FromValue(value);
     Mock.Get(mock)
-      .Setup(c => c.CalculateFor(value))
+      .Setup(c => c.CalculateFor(diceValue))
       .Returns((xExpected, yExpected, zExpected));
     Services.AddScoped<IRotationCalculator>(_ => mock);
     
     // Act
-    var cut = RenderComponent<Die>(c => c.Add(d => d.DiceValue, value));
+    var cut = RenderComponent<Die>(c => c.Add(d => d.DiceValue, diceValue));
 
     // Assert
     cut.WaitForAssertion(() =>
