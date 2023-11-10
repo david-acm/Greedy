@@ -22,13 +22,15 @@ public partial class Die {
   [Parameter] public int     Size  { get; set; } = 50;
   [Parameter] public string? Class { get; set; }
 
+  [Parameter] public          bool                IsDragging          { get; set; }
   [Inject] public ILogger<Die>        Logger              { get; set; }
   [Inject] public IRotationCalculator _rotationCalculator { get; set; }
 
 
   protected override async Task OnInitializedAsync() {
     _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
-    RotateToValue();
+    if(IsDragging)
+      RotateToValue();
     await base.OnInitializedAsync();
   }
 
@@ -44,27 +46,27 @@ public partial class Die {
   protected override async Task OnAfterRenderAsync(bool firstRender) {
     if (firstRender)
     {
-      // await DelayedRotateToValue();
+      await DelayedRotateToValue();
       // RotateToValue();
     }
 
     await base.OnAfterRenderAsync(firstRender);
   }
 
-  // private async Task DelayedRotateToValue() {
-  //   _ = new Timer(async _ =>
-  //   {
-  //     await InvokeAsync(async () =>
-  //     {
-  //       RotateToValue();
-  //       StateHasChanged();
-  //     });
-  //   }, null, 0, -1);
-  // }
+  private async Task DelayedRotateToValue() {
+    _ = new Timer(async _ =>
+    {
+      await InvokeAsync(async () =>
+      {
+        RotateToValue();
+        StateHasChanged();
+      });
+    }, null, 0, -1);
+  }
 
   private void RotateToValue() {
     _number = DiceValue;
-    var rotation = _rotationCalculator.CalculateFor(_number);
+    var rotation = _rotationCalculator.CalculateFor(_number, !IsDragging);
     SetRotationTo(rotation);
   }
 

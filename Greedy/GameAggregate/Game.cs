@@ -19,7 +19,18 @@ public class Game : Aggregate<GameState> {
   public void JoinPlayer(Command.JoinPlayer joinPlayer) =>
     Apply(new V1.PlayerJoined(joinPlayer.Id, joinPlayer.Name));
 
-  public void RollDice(Command.RollDice rollDice) {
+  public void RollDiceV1(Command.RollDice rollDice) {
+    var roll = Dice.FromNewRoll(
+      _randomProvider,
+      GetNumberOfDiceToTrow());
+
+    Apply(new V1.DiceRolled(
+      rollDice.PlayerId,
+      roll.DiceValues.ToPrimitiveArray(),
+      GetScoreAfterRoll(roll)));
+  }
+  
+  public void RollDiceV2(Command.RollDice rollDice) {
     var roll = Dice.FromNewRoll(
       _randomProvider,
       GetNumberOfDiceToTrow());
@@ -39,6 +50,11 @@ public class Game : Aggregate<GameState> {
   }
 
   public void KeepDice(Command.KeepDice keepDice) =>
+    Apply(new V1.DiceKept(keepDice.PlayerId, keepDice.DiceValues.ToPrimitiveArray(),
+      GetTableCenterDice(keepDice),
+      GetNewTurnScore(keepDice.DiceValues, State.TurnScore)));
+  
+  public void KeepDiceV2(Command.KeepDice keepDice) =>
     Apply(new V2.DiceKept(keepDice.PlayerId, keepDice.DiceValues.ToPrimitiveArray(),
       GetTableCenterDice(keepDice),
       GetNewTurnScore(keepDice.DiceValues, State.TurnScore),

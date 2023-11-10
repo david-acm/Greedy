@@ -1,0 +1,47 @@
+@using AngleSharp.Diffing.Core
+@using Bunit.Extensions.WaitForHelpers
+@inherits TestContext
+
+@code {
+
+  [Fact]
+  public void ShouldAnimate() {
+    // Arrange
+    var context = new TestContext();
+    context.Services.AddScoped<IRotationCalculator, RotationCalculator>();
+    var cut = context.Render(@<Die DiceValue="DiceValue.Four"></Die>);
+    var die = cut.Find(".die-container");
+
+    // Act
+    die.PointerEnter();
+
+    // Assert
+    cut.WaitForAssertion(() =>
+    {
+      var changes = cut.GetChangesSinceFirstRender();
+      var change = changes.ShouldHaveSingleChange() as TextDiff;
+      change?.Test.Node.NodeValue.Should().Contain(
+        @"scale3d(1.4, 1.4, 1.4);");
+    });
+  }
+
+  [Fact]
+  public void ShouldReturnToInitialSize() {
+    // Arrange
+    var context = new TestContext();
+    context.Services.AddScoped<IRotationCalculator, RotationCalculator>();
+    var cut = context.Render(@<Die DiceValue="DiceValue.Four"></Die>);
+    var die = cut.Find(".die-container");
+
+    // Act
+    die.PointerEnter();
+    die.PointerLeave(new PointerEventArgs());
+
+    // Assert
+    var changes = cut.GetChangesSinceFirstRender();
+    var change = changes.ShouldHaveSingleChange() as TextDiff;
+    change?.Test.Node.NodeValue.Should().Contain(
+      @"scale3d(1, 1, 1);");
+  }
+
+}

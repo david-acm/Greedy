@@ -13,7 +13,8 @@ public class JoinShould {
 
     // Act
     game.Start(new StartGame(1));
-    game.JoinPlayer(new JoinPlayer(1, 1, "David"));
+    var player1 = new JoinPlayer(1, 1, "David");
+    game.JoinPlayer(player1);
     game.JoinPlayer(new JoinPlayer(1, 2, "Cristian"));
 
     // Assert
