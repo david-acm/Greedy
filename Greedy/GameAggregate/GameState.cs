@@ -100,8 +100,6 @@ public record Score(int Value) {
   public static implicit operator Score(int score) => new Score(score);
 }
 
-public record DiceRoll(Dice Dice);
-
 public record GameId(int Id) : AggregateId($"{Id}") {
   public static implicit operator GameId(int id) => new(id);
   public static implicit operator int(GameId id) => id.Id;

@@ -1,3 +1,4 @@
+using Greedy.Spa.Services;
 using Microsoft.AspNetCore.Components;
 using DiceValue = Greedy.Spa.Components.DiceValue;
 

@@ -17,4 +17,16 @@
       <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Services\IGameService.cs">
+        <DependentUpon>GameService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\IRotationCalculator.cs">
+        <DependentUpon>RotationCalculator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\CommandResponse.cs">
+        <DependentUpon>GameService.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

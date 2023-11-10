@@ -20,7 +20,7 @@ public class GameService : CommandService<Game, GameState, GameId> {
     On<Command.RollDice>()
       .InState(Existing)
       .GetId((cmd) => new GameId(cmd.GameId))
-      .Execute((game, cmd) => game.RollDice(cmd));
+      .Execute((game, cmd) => game.RollDiceV2(cmd));
 
     On<Command.KeepDice>()
       .InState(Existing)

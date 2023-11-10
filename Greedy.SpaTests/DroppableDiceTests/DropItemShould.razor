@@ -1,0 +1,42 @@
+@inherits TestContext
+@using static Spa.Components.DiceValue
+@using Microsoft.JSInterop;
+@using Microsoft.JSInterop.Infrastructure;
+@using Moq
+@using AngleSharp.Dom
+
+@code {
+
+  [Fact]
+  public async Task AssignIdentifierOfDropZone() {
+    // Arrange
+    JSInterop.Mode = JSRuntimeMode.Loose;
+    Services.AddScoped<IRotationCalculator>(
+      _ => Mock.Of<IRotationCalculator>());
+    var cut = Render(
+      @<DroppableDice DiceValues="new List<DiceValue>(){One}"></DroppableDice>);
+
+    var container = cut.Find(".mud-drop-container");
+    container.Children.Should().HaveCount(2);
+
+    var firstDropZone = container.Children[0];
+    firstDropZone.OuterHtml.Should().Contain("Rolled");
+    var secondDropZone = container.Children[1];
+    secondDropZone.OuterHtml.Should().Contain("Kept");
+
+    firstDropZone.Children.Should().HaveCount(2);
+    secondDropZone.Children.Should().HaveCount(1);
+
+    var firstDropItem = firstDropZone.Children[1];
+
+    // Act
+    await firstDropItem.DragStartAsync(new DragEventArgs());
+    await secondDropZone.DropAsync(new DragEventArgs());
+
+    // Assert
+    container = cut.Find(".mud-drop-container");
+    secondDropZone = container.Children[1];
+    secondDropZone.Children.Should().HaveCount(2);
+    secondDropZone.Children[1].DragEnd();
+  }
+}

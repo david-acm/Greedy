@@ -1,7 +1,6 @@
-using FluentAssertions;
 using Greedy.Spa.Components;
 
-namespace Greedy.SpaTests;
+namespace Greedy.SpaTests.RotationCalculator;
 
 public class CalculateForShould {
   [Theory]
@@ -17,7 +16,7 @@ public class CalculateForShould {
     int yExpected,
     int zExpected) {
     // Arrange
-    var sut = new RotationCalculator();
+    var sut = new Spa.Components.RotationCalculator();
 
     // Act
     var (x, y, z) = sut.CalculateFor(DiceValue.FromValue(value));

@@ -30,7 +30,8 @@ public class GameWithThreePlayersTest {
   }
 
   protected GameState             State  => Game.State;
-  protected IReadOnlyCollection<object> Events => Game.Changes;
+  protected IReadOnlyCollection<object> Changes => Game.Changes;
+  protected IReadOnlyCollection<object> Current => Game.Current.ToList().AsReadOnly();
 
 
   protected void SetupDiceToRoll(IEnumerable<int> values) {

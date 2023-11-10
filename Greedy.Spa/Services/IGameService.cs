@@ -1,6 +1,6 @@
 using Greedy.Spa.Components;
 
-namespace Greedy.Spa.Pages;
+namespace Greedy.Spa.Services;
 
 public interface IGameService {
   public Task<IList<DiceValue>> RollDiceAsync(int gameId, int playerId);

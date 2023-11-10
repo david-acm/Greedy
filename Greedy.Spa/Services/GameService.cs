@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Greedy.Spa.Components;
 
-namespace Greedy.Spa.Pages;
+namespace Greedy.Spa.Services;
 
 class GameService : IGameService {
   private readonly HttpClient _gameClient;

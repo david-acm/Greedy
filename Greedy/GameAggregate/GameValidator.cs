@@ -26,6 +26,11 @@ public static class GameValidator {
         new PlayerIsInTurn(state, e.PlayerId)
           .And(new PlayerCanPass(game, e.PlayerId))
           .IsSatisfied(),
+      V1.DiceKept e =>
+        new PlayerIsInTurn(state, e.PlayerId)
+          .And(new PlayerHasThoseDice(GetDice(e), state))
+          .And(new CanKeepDice(GetDice(e)))
+          .IsSatisfied(),
       V2.DiceKept e =>
         new PlayerIsInTurn(state, e.PlayerId)
           .And(new PlayerHasThoseDice(GetDice(e), state))
@@ -41,6 +46,10 @@ public static class GameValidator {
   }
 
   private static Dice GetDice(V2.DiceKept e) =>
+    Dice.FromValues(e.Dice.ToList());
+  
+  
+  private static Dice GetDice(V1.DiceKept e) =>
     Dice.FromValues(e.Dice.ToList());
 
   private static ValidationResult Validate(bool validation, object failedValidationEvent) =>
@@ -194,8 +203,14 @@ public class PlayerCanPass : Validator {
   }
 
   public override ValidationResult IsSatisfied() =>
-    new(_game.Current.LastEventsWere(typeof(V2.DiceRolled)) ||
-        _game.Current.LastEventsWere(typeof(V2.DiceKept)),
+    new(
+          (_game.Current.LastEventsWere(typeof(V2.DiceRolled)) 
+          ||
+          _game.Current.LastEventsWere(typeof(V1.DiceRolled)))
+        ||
+          (
+          _game.Current.LastEventsWere(typeof(V2.DiceKept)) || 
+          _game.Current.LastEventsWere(typeof(V1.DiceKept))),
       new V1.PassedWithoutRolling(_playerId));
 }
 
@@ -211,10 +226,10 @@ public static class EnumerableExtensions {
 
     return !expectedEvents.Where((t, index) => itemList[index] != t).Any();
   }
-  
+
   public static bool LastEventsWere<T>(
     this IEnumerable<T> events,
-    Type         expectedEvent) {
+    Type                expectedEvent) {
     return events.LastEventsWere(new[] { expectedEvent });
   }
 }
