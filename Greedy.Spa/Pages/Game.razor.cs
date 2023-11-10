@@ -10,7 +10,8 @@ public partial class Game {
   private int _gameId;
   private int _playerId;
 
-  [Inject] public IGameService? GameService { get; set; }
+  [Inject]
+  public IGameService? GameService { get; set; }
   private         string?       Values      { get; set; } = "1 2 3 4 5 6";
 
   private List<DiceValue> DiceValues => Values?
