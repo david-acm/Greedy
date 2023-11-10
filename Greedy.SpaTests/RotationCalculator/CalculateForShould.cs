@@ -14,18 +14,18 @@ public class CalculateForShould {
     int value,
     int xExpected,
     int yExpected,
-    int zExpected) {
+    int zExpected)
+  {
     // Arrange
     var sut = new Spa.Components.RotationCalculator();
 
     // Act
-    var (x, y, z) = sut.CalculateFor(DiceValue.FromValue(value));
+    (int x, int y, int z) = sut.CalculateFor(DiceValue.FromValue(value));
 
     // Assert
     (
-        (x + 720) % 360,
-        (y + 720) % (yExpected == 0 ? 90 : 360),
-        (z + 720) % (zExpected == 0 ? 90 : 360)).Should()
-      .Be((xExpected, yExpected, zExpected));
+      (x + 720) % 360,
+      (y + 720) % (yExpected == 0 ? 90 : 360),
+      (z + 720) % (zExpected == 0 ? 90 : 360)).Should().Be((xExpected, yExpected, zExpected));
   }
 }

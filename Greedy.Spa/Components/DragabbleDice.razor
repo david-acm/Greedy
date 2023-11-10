@@ -1,67 +1,36 @@
-<MudDropContainer T="DropItem"
+<MudDropContainer Class="d-flex flex-column flex-grow-1 flex-wrap"
+                  ItemDropped="ItemUpdated"
                   Items="_items"
                   ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)"
-                  ItemDropped="ItemUpdated"
-                  Class="d-flex flex-wrap flex-column flex-grow-1">
+                  T="DropItem">
   <ChildContent>
 
-    <MudDropZone T="DropItem"
+    <MudDropZone Class="d-flex flex-grow-1 flex-row flex-wrap justify-center mud-background-gray pa-6 rounded"
                  Identifier="Rolled"
-                 Class="rounded mud-background-gray pa-6 d-flex flex-row flex-wrap flex-grow-1 justify-center">
-      <MudText Typo="Typo.h6"
-               Class="mb-4">
+                 T="DropItem">
+      <MudText Class="mb-4"
+               Typo="Typo.h6">
         Rolled
       </MudText>
     </MudDropZone>
-    <MudDropZone T="DropItem"
-                 Identifier="Kept" 
-                 Class="rounded mud-background-gray pa-6 d-flex flex-row flex-wrap flex-grow-1 justify-center">
-      <MudText Typo="Typo.h6"
-               Class="mb-4">
+
+    <MudDropZone Class="d-flex flex-grow-1 flex-row flex-wrap justify-center mud-background-gray pa-6 rounded"
+                 Identifier="Kept"
+                 T="DropItem">
+      <MudText Class="mb-4"
+               Typo="Typo.h6">
         Keep
       </MudText>
     </MudDropZone>
 
   </ChildContent>
+
   <ItemRenderer>
-    <MudItem Class="d-flex align-center ma-8 ma-8">
-      <Die IsDragging=@true 
-           DiceValue="context.Value" 
-           Size="50"></Die>
+    <MudItem Class="align-center d-flex ma-8 ma-8">
+      <Die DiceValue="context.Value"
+           IsDragging="@true"
+           Size="50">
+      </Die>
     </MudItem>
   </ItemRenderer>
 </MudDropContainer>
-
-@code {
-
-  private void ItemUpdated(MudItemDropInfo<DropItem> dropItem) {
-    dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
-  }
-
-  [Parameter]
-  public List<DiceValue> DiceValues { get; set; }
-
-  private List<DropItem> _items = new();
-
-  protected override void OnInitialized()
-    => _items = DiceValues.Select(d => new DropItem()
-    {
-      Value = d,
-      Identifier = "Rolled"
-    }).ToList();
-
-  protected override void OnParametersSet() {
-    for (var i = 0; i < _items.Count; i++)
-    {
-      _items.ElementAt(i).Value = DiceValues.ElementAt(i);
-    }
-
-    base.OnParametersSet();
-  }
-
-  public class DropItem {
-    public DiceValue Value { get; set; }
-    public string? Identifier { get; set; }
-  }
-
-}

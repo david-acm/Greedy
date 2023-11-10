@@ -14,11 +14,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoFixture" Version="4.18.0" />
-        <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.0" />
-        <PackageReference Include="AutoFixture.Xunit2" Version="4.18.0" />
+        <PackageReference Include="AutoFixture" Version="4.18.0"/>
+        <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.0"/>
+        <PackageReference Include="AutoFixture.Xunit2" Version="4.18.0"/>
         <PackageReference Include="bunit" Version="1.24.10"/>
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.12.0"/>
         <PackageReference Include="coverlet.collector" Version="6.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,7 +27,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Moq" Version="4.20.69" />
+        <PackageReference Include="Moq" Version="4.20.69"/>
+        <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
         <PackageReference Include="xunit" Version="2.5.0"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -37,7 +38,8 @@
 
 
     <ItemGroup>
-      <ProjectReference Include="..\Greedy.Spa\Greedy.Spa.csproj" />
+        <ProjectReference Include="..\Greedy.Spa\Greedy.Spa.csproj"/>
+        <ProjectReference Include="..\Greedy.WebApi\Greedy.WebApi.csproj" />
     </ItemGroup>
 
 </Project>

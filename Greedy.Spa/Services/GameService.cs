@@ -4,24 +4,27 @@ using Greedy.Spa.Components;
 
 namespace Greedy.Spa.Services;
 
-class GameService : IGameService {
+public class GameService : IGameService {
   private readonly HttpClient _gameClient;
 
-  public GameService(HttpClient gameClient) {
+  public GameService(HttpClient gameClient)
+  {
     _gameClient = gameClient;
   }
 
-  public async Task<IList<DiceValue>> RollDiceAsync(int gameId, int playerId) {
+  public async Task<IList<DiceValue>> RollDiceAsync(int gameId, int playerId)
+  {
     var result =
-      await _gameClient.PostAsJsonAsync("http://localhost:5276/diceRolls", new { GameId = gameId, PlayerId = playerId });
+      await _gameClient.PostAsJsonAsync("http://localhost:5276/diceRolls",
+        new { GameId = gameId, PlayerId = playerId });
 
     var options = new JsonSerializerOptions
     {
       PropertyNameCaseInsensitive = true
     };
-    
-    var stringContent = await result.Content.ReadAsStringAsync();
-    var response      = JsonSerializer.Deserialize<CommandResponse>(stringContent, options);
+
+    string stringContent = await result.Content.ReadAsStringAsync();
+    var    response      = JsonSerializer.Deserialize<CommandResponse>(stringContent, options);
 
     var tableCenter = response?.State?.TableCenter?.Select(v => DiceValue.FromValue(int.Parse($"{v.Value}"))).ToList();
     return tableCenter ?? new List<DiceValue>();

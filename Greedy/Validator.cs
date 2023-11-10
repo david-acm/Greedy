@@ -11,12 +11,14 @@ public class AndValidator : Validator {
   private readonly Validator _left;
   private readonly Validator _right;
 
-  public AndValidator(Validator left, Validator right) {
+  public AndValidator(Validator left, Validator right)
+  {
     _left  = left;
     _right = right;
   }
 
-  public override ValidationResult IsSatisfied() {
+  public override ValidationResult IsSatisfied()
+  {
     if (!_left.IsSatisfied())
       return _left.IsSatisfied() with { IsValid = _left.IsSatisfied() };
     if (_right.IsSatisfied())

@@ -6,31 +6,21 @@ using static Eventuous.ExpectedState;
 namespace Greedy.WebApi.Application;
 
 public class GameService : CommandService<Game, GameState, GameId> {
-  public GameService(IAggregateStore store) : base(store) {
-    On<Command.StartGame>()
-      .InState(New)
-      .GetId((cmd) => new GameId(cmd.GameId))
-      .Execute((game, cmd) => game.Start(cmd));
+  public GameService(IAggregateStore store) : base(store)
+  {
+    On<Command.StartGame>().InState(New).GetId(cmd => new GameId(cmd.GameId)).Execute((game, cmd) => game.Start(cmd));
 
-    On<Command.JoinPlayer>()
-      .InState(Existing)
-      .GetId((cmd) => new GameId(cmd.GameId))
-      .Execute((game, cmd) => game.JoinPlayer(cmd));
+    On<Command.JoinPlayer>().InState(Existing).GetId(cmd => new GameId(cmd.GameId)).
+      Execute((game, cmd) => game.JoinPlayer(cmd));
 
-    On<Command.RollDice>()
-      .InState(Existing)
-      .GetId((cmd) => new GameId(cmd.GameId))
-      .Execute((game, cmd) => game.RollDiceV2(cmd));
+    On<Command.RollDice>().InState(Existing).GetId(cmd => new GameId(cmd.GameId)).
+      Execute((game, cmd) => game.RollDiceV2(cmd));
 
-    On<Command.KeepDice>()
-      .InState(Existing)
-      .GetId((cmd) => new GameId(cmd.GameId))
-      .Execute((game, cmd) => game.KeepDice(cmd));
+    On<Command.KeepDice>().InState(Existing).GetId(cmd => new GameId(cmd.GameId)).
+      Execute((game, cmd) => game.KeepDice(cmd));
 
-    On<Command.PassTurn>()
-      .InState(Existing)
-      .GetId((cmd) => new GameId(cmd.GameId))
-      .Execute((game, cmd) => game.PassTurn(cmd));
+    On<Command.PassTurn>().InState(Existing).GetId(cmd => new GameId(cmd.GameId)).
+      Execute((game, cmd) => game.PassTurn(cmd));
   }
 }
 
@@ -40,7 +30,8 @@ public static class CommandHandlerBuilderExtensions {
     where TCommand : class
     where TAggregate : Aggregate<TState>, new()
     where TState : State<TState>, new()
-    where TId : Id {
+    where TId : Id
+  {
     builder.Act((game, cmd) =>
     {
       try

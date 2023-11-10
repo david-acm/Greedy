@@ -7,26 +7,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.11" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.11" PrivateAssets="all" />
-        <PackageReference Include="MudBlazor" Version="6.11.0" />
+        <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.11"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.11" PrivateAssets="all"/>
+        <PackageReference Include="MudBlazor" Version="6.11.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css"/>
+        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Services\IGameService.cs">
-        <DependentUpon>GameService.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Services\IRotationCalculator.cs">
-        <DependentUpon>RotationCalculator.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Services\CommandResponse.cs">
-        <DependentUpon>GameService.cs</DependentUpon>
-      </Compile>
+        <Compile Update="Services\IGameService.cs">
+            <DependentUpon>GameService.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Services\IRotationCalculator.cs">
+            <DependentUpon>RotationCalculator.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Services\CommandResponse.cs">
+            <DependentUpon>GameService.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ namespace Greedy.Spa.Components;
 
 public sealed class DiceValue : SmartEnum<DiceValue, int> {
   public static readonly DiceValue None = new("n", 0);
-  public static readonly DiceValue One = new("⚀", 1);
+  public static readonly DiceValue One  = new("⚀", 1);
 
   public static readonly DiceValue Two = new("⚁", 2);
 
@@ -17,6 +17,7 @@ public sealed class DiceValue : SmartEnum<DiceValue, int> {
   public static readonly DiceValue Six = new("⚅", 6);
 
   private DiceValue(string name, int value) : base(name,
-    value) {
+    value)
+  {
   }
 }

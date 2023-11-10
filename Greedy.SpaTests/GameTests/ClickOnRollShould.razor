@@ -1,0 +1,31 @@
+@using Greedy.Spa.Services
+@using Moq
+@using Die = Greedy.Spa.Components.Die
+@inherits TestContext
+
+@code {
+
+  [Fact]
+  public async Task UpdateDiceWithReceivedValues()
+  {
+    // Given
+    JSInterop.Mode = JSRuntimeMode.Loose;
+    var gameService = Mock.Of<IGameService>();
+    Services.AddScoped<IGameService>(_ => gameService);
+    Mock.Get(gameService).Setup(g => g.RollDiceAsync(It.IsAny<int>(), It.IsAny<int>()))
+      .ReturnsAsync(new List<DiceValue>()
+      {
+        DiceValue.One
+      });
+    Services.AddScoped<IRotationCalculator>(_ => Mock.Of<IRotationCalculator>());
+    var cut = Render(@<Game></Game>);
+    var button = cut.Find("button.mud-button");
+
+    // When
+    button.Click();
+
+    // Then
+    cut.FindComponent<Die>().Instance.DiceValue.Should().Be(DiceValue.One);
+  }
+
+}

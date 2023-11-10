@@ -1,11 +1,11 @@
 @using AngleSharp.Diffing.Core
-@using Bunit.Extensions.WaitForHelpers
 @inherits TestContext
 
 @code {
 
   [Fact]
-  public void ShouldAnimate() {
+  public void ShouldAnimate()
+  {
     // Arrange
     var context = new TestContext();
     context.Services.AddScoped<IRotationCalculator, RotationCalculator>();
@@ -26,7 +26,8 @@
   }
 
   [Fact]
-  public void ShouldReturnToInitialSize() {
+  public void ShouldReturnToInitialSize()
+  {
     // Arrange
     var context = new TestContext();
     context.Services.AddScoped<IRotationCalculator, RotationCalculator>();

@@ -11,7 +11,8 @@ public class GameWithThreePlayersTest {
   protected readonly ITestOutputHelper    Output;
   private            List<int>.Enumerator _enumerator;
 
-  protected GameWithThreePlayersTest(ITestOutputHelper output) {
+  protected GameWithThreePlayersTest(ITestOutputHelper output)
+  {
     Output = output;
     // Arrange
     _randomProvider = Mock.Of<IRandom>();
@@ -29,19 +30,18 @@ public class GameWithThreePlayersTest {
     Game.Load(game.Changes.ToList());
   }
 
-  protected GameState             State  => Game.State;
+  protected GameState                   State   => Game.State;
   protected IReadOnlyCollection<object> Changes => Game.Changes;
   protected IReadOnlyCollection<object> Current => Game.Current.ToList().AsReadOnly();
 
 
-  protected void SetupDiceToRoll(IEnumerable<int> values) {
+  protected void SetupDiceToRoll(IEnumerable<int> values)
+  {
     _enumerator = values.ToList().GetEnumerator();
-    Mock.Get(_randomProvider)
-      .Setup(s => s.Next(It.IsAny<int>(), It.IsAny<int>()))
-      .Returns(() =>
-      {
-        _enumerator.MoveNext();
-        return _enumerator.Current;
-      });
+    Mock.Get(_randomProvider).Setup(s => s.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(() =>
+    {
+      _enumerator.MoveNext();
+      return _enumerator.Current;
+    });
   }
 }

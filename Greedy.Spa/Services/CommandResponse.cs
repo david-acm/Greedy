@@ -1,6 +1,7 @@
 namespace Greedy.Spa.Services;
 
 public record CommandResponse(State State, bool Success);
-public record State(TableCenter[]   TableCenter);
 
-public record TableCenter(string Name, int Value);
+public record State(Die[] TableCenter);
+
+public record Die(string Name, int Value);

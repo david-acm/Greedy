@@ -4,12 +4,28 @@ using Microsoft.AspNetCore.Components.Web;
 namespace Greedy.Spa.Components;
 
 public partial class Die {
-  private (int, int, int) _rotation;
-  private string          _id;
-  private double          _scale  = 1;
+  private string          _id     = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
   private DiceValue       _number = DiceValue.None;
+  private (int, int, int) _rotation;
+  private double          _scale = 1;
 
-  [Parameter] public DiceValue DiceValue { get; set; }
+  [Parameter]
+  public DiceValue DiceValue { get; set; }
+
+  [Parameter]
+  public int Size { get; set; } = 50;
+
+  [Parameter]
+  public string? Class { get; set; }
+
+  [Parameter]
+  public bool IsDragging { get; set; }
+
+  [Inject]
+  public ILogger<Die> Logger { get; set; }
+
+  [Inject]
+  public IRotationCalculator _rotationCalculator { get; set; }
 
   private double AngleFor(char a) => a switch
   {
@@ -19,41 +35,28 @@ public partial class Die {
     _   => 0
   };
 
-  [Parameter] public int     Size  { get; set; } = 50;
-  [Parameter] public string? Class { get; set; }
-
-  [Parameter] public          bool                IsDragging          { get; set; }
-  [Inject] public ILogger<Die>        Logger              { get; set; }
-  [Inject] public IRotationCalculator _rotationCalculator { get; set; }
-
-
-  protected override async Task OnInitializedAsync() {
-    _id = new string(Guid.NewGuid().ToString().Where(c => !char.IsDigit(c)).ToArray());
-    if(IsDragging)
+  protected override async Task OnInitializedAsync()
+  {
+    if (IsDragging)
       RotateToValue();
     await base.OnInitializedAsync();
   }
 
-  protected override Task OnParametersSetAsync() {
-    if (_number != DiceValue.None && _number != DiceValue)
-    {
-      RotateToValue();
-    }
+  protected override Task OnParametersSetAsync()
+  {
+    if (_number != DiceValue.None && _number != DiceValue) RotateToValue();
 
     return base.OnParametersSetAsync();
   }
 
-  protected override async Task OnAfterRenderAsync(bool firstRender) {
-    if (firstRender)
-    {
-      await DelayedRotateToValue();
-      // RotateToValue();
-    }
-
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender) await DelayedRotateToValue();
+    // RotateToValue();
     await base.OnAfterRenderAsync(firstRender);
   }
 
-  private async Task DelayedRotateToValue() {
+  private async Task DelayedRotateToValue() =>
     _ = new Timer(async _ =>
     {
       await InvokeAsync(async () =>
@@ -62,33 +65,33 @@ public partial class Die {
         StateHasChanged();
       });
     }, null, 0, -1);
-  }
 
-  private void RotateToValue() {
+  private void RotateToValue()
+  {
     _number = DiceValue;
     var rotation = _rotationCalculator.CalculateFor(_number, !IsDragging);
     SetRotationTo(rotation);
   }
 
-  private void SetRotationTo((int, int, int) rotation) {
+  private void SetRotationTo((int, int, int) rotation) =>
     _rotation = rotation;
-  }
 
-  private void MouseLeave(MouseEventArgs e) {
-    var (x, y, z) = _rotation;
+  private void MouseLeave(MouseEventArgs e)
+  {
+    (int x, int y, int z) = _rotation;
     SetRotationTo((x, y - 10, z - 10));
     Scale(1);
     StateHasChanged();
   }
 
-  private void MouseEnter(MouseEventArgs e) {
-    var (x, y, z) = _rotation;
+  private void MouseEnter(MouseEventArgs e)
+  {
+    (int x, int y, int z) = _rotation;
     SetRotationTo((x, y + 10, z + 10));
     Scale(1.4);
     StateHasChanged();
   }
 
-  private void Scale(double scale) {
+  private void Scale(double scale) =>
     _scale = scale;
-  }
 }

@@ -1,20 +1,18 @@
 @inherits TestContext
 @using static Spa.Components.DiceValue
-@using Microsoft.JSInterop;
-@using Microsoft.JSInterop.Infrastructure;
 @using Moq
-@using AngleSharp.Dom
 
 @code {
 
   [Fact]
-  public async Task AssignIdentifierOfDropZone() {
+  public async Task AssignIdentifierOfDropZone()
+  {
     // Arrange
     JSInterop.Mode = JSRuntimeMode.Loose;
     Services.AddScoped<IRotationCalculator>(
       _ => Mock.Of<IRotationCalculator>());
     var cut = Render(
-      @<DragabbleDice DiceValues="new List<DiceValue>(){One}"></DragabbleDice>);
+      @<DragabbleDice DiceValues="new List<DiceValue>{One}"></DragabbleDice>);
 
     var container = cut.Find(".mud-drop-container");
     container.Children.Should().HaveCount(2);
@@ -39,4 +37,5 @@
     secondDropZone.Children.Should().HaveCount(2);
     secondDropZone.Children[1].DragEnd();
   }
+
 }
