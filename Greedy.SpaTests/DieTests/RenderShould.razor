@@ -1,0 +1,82 @@
+@using System.Text.RegularExpressions
+@using AutoFixture.Xunit2
+@using Moq
+@inherits TestContext
+
+These tests are written entirely in razor and C# syntax.
+
+Learn more at https://bunit.dev/docs/getting-started/writing-tests.html#creating-basic-tests-in-razor-files
+
+@code {
+
+  [Theory]
+  [AutoData]
+  public void AnimateRotation(int xExpected, int yExpected, int zExpected)
+  {
+  // Arrange
+    var mock = Mock.Of<IRotationCalculator>();
+    Mock.Get(mock)
+      .Setup(c => c.CalculateFor(It.IsAny<DiceValue>(), false))
+      .Returns((xExpected, yExpected, zExpected));
+    Services.AddScoped<IRotationCalculator>(_ => mock);
+
+  // Act
+    var cut = RenderComponent<Die>(c => c.Add(d => d.DiceValue, DiceValue.None));
+
+    cut.WaitForAssertion(() => cut.RenderCount.Should().Be(2),
+      TimeSpan.FromMilliseconds(200));
+    RotationShouldMatch(xExpected, yExpected, zExpected, cut);
+  }
+
+  [Theory]
+  [AutoData]
+  public void NotAnimateRotationWhenDragIsEnabled(
+    int xExpected, int yExpected, int zExpected)
+  {
+  // Arrange
+    var mock = Mock.Of<IRotationCalculator>();
+    Mock.Get(mock)
+      .Setup(c => c.CalculateFor(It.IsAny<DiceValue>(), false))
+      .Returns((xExpected, yExpected, zExpected));
+    Services.AddScoped<IRotationCalculator>(_ => mock);
+
+  // Act
+    var cut = RenderComponent<Die>(c => c
+      .Add(d => d.DiceValue, DiceValue.None)
+      .Add(d => d.IsDragging, true));
+
+  // Assert
+    string innerHtml = cut.Find("style").InnerHtml;
+    RotationShouldBe(xExpected, innerHtml, @"rotateX\((-?\d+)deg\)");
+    RotationShouldBe(yExpected, innerHtml, @"rotateY\((-?\d+)deg\)");
+    RotationShouldBe(zExpected, innerHtml, @"rotateZ\((-?\d+)deg\)");
+  }
+
+  private Action RotationShouldMatch(int xExpected, int yExpected, int zExpected, IRenderedComponent<Die> cut) => () =>
+  {
+    string innerHtml = cut.Find("style").InnerHtml;
+    RotationShouldBe(xExpected, innerHtml, @"rotateX\((-?\d+)deg\)");
+    RotationShouldBe(yExpected, innerHtml, @"rotateY\((-?\d+)deg\)");
+    RotationShouldBe(zExpected, innerHtml, @"rotateZ\((-?\d+)deg\)");
+  };
+
+  private void RotationShouldBe(int xExpected, string innerHtml, string axis)
+  {
+    TryGetNumberFrom(axis, innerHtml, out int xRotation);
+    (xRotation % 360).Should().Be(xExpected);
+  }
+
+  private bool TryGetNumberFrom(string pattern, string text, out int result)
+  {
+  // var pattern = @"rotate\((\d+)deg\)";
+    result = 0;
+
+    var match = Regex.Match(text, pattern);
+
+    if (!match.Success) return false;
+    string number = match.Groups[1].Value;
+
+    return int.TryParse(number, out result);
+  }
+
+}

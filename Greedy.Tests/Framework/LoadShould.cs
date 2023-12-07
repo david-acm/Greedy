@@ -1,11 +1,12 @@
-using Greedy.GameAggregate;
 using FluentAssertions;
+using Greedy.GameAggregate;
 
 namespace Greedy.Tests.Framework;
 
 public class LoadShould {
   [Fact]
-  public void RestoreGameStateFromEvents() {
+  public void RestoreGameStateFromEvents()
+  {
     // Arrange
     var game   = new Game();
     var events = new[] { new GameEvents.V1.GameStarted(1) };

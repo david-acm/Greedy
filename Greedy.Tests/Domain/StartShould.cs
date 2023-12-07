@@ -1,5 +1,5 @@
-using Greedy.GameAggregate;
 using FluentAssertions;
+using Greedy.GameAggregate;
 using static Greedy.GameAggregate.Command;
 using static Greedy.GameAggregate.GameEvents.V1;
 using static Greedy.GameAggregate.GameStage;
@@ -8,12 +8,13 @@ namespace Greedy.Tests.Domain;
 
 public class StartShould {
   [Fact]
-  public void ChangeStateToStarted() {
+  public void ChangeStateToStarted()
+  {
     // Arrange
     var game = new Game();
 
     // Act
-    var gameId = 1;
+    int gameId = 1;
     game.Start(new StartGame(gameId));
 
     // Assert
@@ -22,7 +23,8 @@ public class StartShould {
   }
 
   [Fact]
-  public void RaiseGameStartedEvent() {
+  public void RaiseGameStartedEvent()
+  {
     // Arrange
     var game = new Game();
 
@@ -34,7 +36,8 @@ public class StartShould {
   }
 
   [Fact]
-  public void NotAllowAGameToStartTwice() {
+  public void NotAllowAGameToStartTwice()
+  {
     // Arrange
     var game = new Game();
 

@@ -1,0 +1,36 @@
+<MudDropContainer Class="d-flex flex-column flex-grow-1 flex-wrap"
+                  ItemDropped="ItemUpdated"
+                  Items="_items"
+                  ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)"
+                  T="DropItem">
+  <ChildContent>
+
+    <MudDropZone Class="d-flex flex-grow-1 flex-row flex-wrap justify-center mud-background-gray pa-6 rounded"
+                 Identifier="Rolled"
+                 T="DropItem">
+      <MudText Class="mb-4"
+               Typo="Typo.h6">
+        Rolled
+      </MudText>
+    </MudDropZone>
+
+    <MudDropZone Class="d-flex flex-grow-1 flex-row flex-wrap justify-center mud-background-gray pa-6 rounded"
+                 Identifier="Kept"
+                 T="DropItem">
+      <MudText Class="mb-4"
+               Typo="Typo.h6">
+        Keep
+      </MudText>
+    </MudDropZone>
+
+  </ChildContent>
+
+  <ItemRenderer>
+    <MudItem Class="align-center d-flex ma-8 ma-8">
+      <Die DiceValue="context.Value"
+           IsDragging="@true"
+           Size="50">
+      </Die>
+    </MudItem>
+  </ItemRenderer>
+</MudDropContainer>

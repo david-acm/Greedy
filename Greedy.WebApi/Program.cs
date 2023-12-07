@@ -16,7 +16,20 @@ builder.Services.AddCommandService<GameService, Game>();
 builder.Services.AddEventStoreClient("esdb://localhost:2113?tls=false");
 builder.Services.AddAggregateStore<EsdbEventStore>();
 
+const string MyAllowSpecificOrigins = "MyAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy(MyAllowSpecificOrigins,
+    policy =>
+    {
+      policy.WithOrigins("http://localhost:5186").AllowAnyHeader().AllowAnyMethod();
+      ;
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -25,43 +38,37 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+app.MapFallbackToFile("index.html");
 
+// app.UseHttpsRedirection();
 app.UseAuthorization();
 TypeMap.RegisterKnownEventTypes();
-app
-  .MapAggregateCommands<Game>()
+app.MapAggregateCommands<Game>()
   // .MapDiscoveredCommands<Game>()
   .MapCommand<V1.StartGameHttp, Command.StartGame>(
-    (cmd, ctx) 
+    (cmd, ctx)
       => new Command.StartGame(
-        cmd.Id))
-  
-  .MapCommand<V1.JoinPlayerHttp, Command.JoinPlayer>(
-    (cmd, ctx) 
+        cmd.Id)).MapCommand<V1.JoinPlayerHttp, Command.JoinPlayer>(
+    (cmd, ctx)
       => new Command.JoinPlayer(
         cmd.GameId,
         cmd.PlayerId,
-        cmd.PlayerName))
-  
-  .MapCommand<V1.RollDiceHttp, Command.RollDice>(
-    (cmd, ctx) 
+        cmd.PlayerName)).MapCommand<V1.RollDiceHttp, Command.RollDice>(
+    (cmd, ctx)
       => new Command.RollDice(
         cmd.GameId,
-        cmd.PlayerId))
-  
-  .MapCommand<V1.KeepDiceHttp, Command.KeepDice>(
-    (cmd, ctx) 
+        cmd.PlayerId)).MapCommand<V1.KeepDiceHttp, Command.KeepDice>(
+    (cmd, ctx)
       => new Command.KeepDice(
         cmd.GameId,
         cmd.PlayerId,
-        cmd.DiceValues.ToDiceValues()))
-  
-  
-  .MapCommand<V1.PassTurnHttp, Command.PassTurn>(
-    (cmd, ctx) 
+        cmd.DiceValues.ToDiceValues())).MapCommand<V1.PassTurnHttp, Command.PassTurn>(
+    (cmd, ctx)
       => new Command.PassTurn(
         cmd.GameId,
         cmd.PlayerId))
   ;
+
 app.Run();

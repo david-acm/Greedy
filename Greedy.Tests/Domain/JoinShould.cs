@@ -1,5 +1,5 @@
-using Greedy.GameAggregate;
 using FluentAssertions;
+using Greedy.GameAggregate;
 using static Greedy.GameAggregate.Command;
 using static Greedy.GameAggregate.GameEvents.V1;
 
@@ -7,13 +7,15 @@ namespace Greedy.Tests.Domain;
 
 public class JoinShould {
   [Fact]
-  public void AddPlayerToGame() {
+  public void AddPlayerToGame()
+  {
     // Arrange
     var game = new Game();
 
     // Act
     game.Start(new StartGame(1));
-    game.JoinPlayer(new JoinPlayer(1, 1, "David"));
+    var player1 = new JoinPlayer(1, 1, "David");
+    game.JoinPlayer(player1);
     game.JoinPlayer(new JoinPlayer(1, 2, "Cristian"));
 
     // Assert

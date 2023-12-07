@@ -1,0 +1,32 @@
+﻿@page "/"
+
+<PageTitle>Play Greedy!</PageTitle>
+
+<MudText Typo="Typo.h3">Be Welcome</MudText>
+<MudGrid Spacing="1">
+  <MudItem sm="12">
+    <MudText Class="mt-6"
+             Typo="Typo.h5">
+      Roll the dice and don't get Greedy!
+    </MudText>
+  </MudItem>
+</MudGrid>
+<MudPaper Class="pa-8">
+  <MudCardActions>
+    <MudTextField @bind-Value="Values"
+                  Immediate="true"
+                  Label="Standard"
+                  Variant="Variant.Text">
+    </MudTextField>
+    <MudButton Class="mt-4"
+               Color="Color.Primary"
+               @onclick="RollAsync"
+               StartIcon="@Icons.Material.Filled.PlayArrow"
+               Variant="Variant.Filled">
+      Roll
+    </MudButton>
+  </MudCardActions>
+
+</MudPaper>
+
+<DragabbleDice DiceValues="DiceValues" OnDropCallback="@DieDropped"></DragabbleDice>

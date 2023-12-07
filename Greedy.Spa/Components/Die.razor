@@ -1,0 +1,84 @@
+﻿@page "/die"
+
+<PageTitle>Die</PageTitle>
+
+<div class="die-container @Class"
+     id="@_id"
+     @onpointerenter="MouseEnter"
+     @onpointerleave="MouseLeave">
+  <div class="die">
+    <div class="one side">
+      <span class="pip"></span>
+    </div>
+    <div class="side two">
+      <span class="pip"></span>
+      <span class="pip"></span>
+    </div>
+    <div class="side three">
+      <span class="pip"></span>
+      <span class="pip"></span>
+      <span class="pip"></span>
+    </div>
+    <div class="four side">
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+    </div>
+    <div class="five side">
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+      <div class="column">
+        <span class="pip"></span>
+      </div>
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+    </div>
+    <div class="side six">
+
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+
+      <div class="column">
+        <span class="pip"></span>
+        <span class="pip"></span>
+        <span class="pip"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="die solid">
+    <div class="one side"></div>
+    <div class="side two"></div>
+    <div class="side three"></div>
+    <div class="four side"></div>
+    <div class="five side"></div>
+    <div class="side six"></div>
+  </div>
+
+  <style>
+      :root {
+          --die-size: @(Size)px;
+      }
+      @($"#{_id}.die-container .die") {
+        transform-style: preserve-3d;
+        transform:
+          rotateX(@($"{AngleFor('x')}deg"))
+          rotateY(@($"{AngleFor('y')}deg"))
+          rotateZ(@($"{AngleFor('z')}deg"))
+          scale3d(@_scale, @_scale, @_scale);
+      }
+    </style>
+
+</div>

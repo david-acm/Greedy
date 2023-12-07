@@ -6,6 +6,17 @@ using static Greedy.GameAggregate.GameEvents;
 namespace Greedy.GameAggregate;
 
 public record GameState : State<GameState> {
+  public GameState()
+  {
+    On<V1.GameStarted>(HandleGameStarted);
+    On<V1.PlayerJoined>(HandlePlayerJoined);
+    On<V1.DiceRolled>(HandleDiceRolled);
+    On<V2.DiceRolled>(HandleDiceRolledV2);
+    On<V1.TurnPassed>(HandleTurnPassed);
+    On<V1.DiceKept>(HandleDiceKept);
+    On<V2.DiceKept>(HandleDiceKeptV2);
+  }
+
   public GameId    Id        { get; private init; }
   public GameStage GameStage { get; private init; }
   public Score     TurnScore { get; private init; } = new(0);
@@ -16,21 +27,11 @@ public record GameState : State<GameState> {
 
   public ImmutableDictionary<int, int> ScoreTable { get; private init; } =
     ImmutableDictionary<int, int>.Empty;
-  
-  public   Score  GameScoreFor(PlayerId playerId) => new(ScoreTable[playerId]);
-  public   Player GetPlayer(int         id)       => Players.Single(p => p.Id == id);
-  internal int    PlayerInTurn                    => Players[0].Id;
 
+  internal int PlayerInTurn => Players[0].Id;
 
-  public GameState() {
-    On<V1.GameStarted>(HandleGameStarted);
-    On<V1.PlayerJoined>(HandlePlayerJoined);
-    On<V1.DiceRolled>(HandleDiceRolled);
-    On<V2.DiceRolled>(HandleDiceRolledV2);
-    On<V1.TurnPassed>(HandleTurnPassed);
-    On<V1.DiceKept>(HandleDiceKept);
-    On<V2.DiceKept>(HandleDiceKeptV2);
-  }
+  public Score  GameScoreFor(PlayerId playerId) => new(ScoreTable[playerId]);
+  public Player GetPlayer(int         id)       => Players.Single(p => p.Id == id);
 
   private static GameState HandleDiceKept(GameState state, V1.DiceKept e)
     => state with
@@ -40,7 +41,7 @@ public record GameState : State<GameState> {
       TableCenter = ImmutableArray<DiceValue>.Empty.AddRange(e.TableCenter.ToDiceValues()),
       GameStage = GameStage.Rolling
     };
-  
+
   private static GameState HandleDiceKeptV2(GameState state, V2.DiceKept e)
     => state with
     {
@@ -54,10 +55,9 @@ public record GameState : State<GameState> {
     => state with
     {
       Players = e.PlayerOrder,
-      ScoreTable = state.ScoreTable
-        .SetItem(
-          e.PlayerId,
-          e.GameScore),
+      ScoreTable = state.ScoreTable.SetItem(
+        e.PlayerId,
+        e.GameScore),
       TableCenter = state.TableCenter.AddRange(state.DiceKept),
       GameStage = GameStage.Rolling,
       DiceKept = state.TableCenter.Clear()
@@ -70,7 +70,7 @@ public record GameState : State<GameState> {
       TableCenter = ImmutableArray<DiceValue>.Empty.AddRange(e.Dice.ToDiceValues()),
       GameStage = GameStage.Keeping
     };
-  
+
   private static GameState HandleDiceRolledV2(GameState state, V2.DiceRolled e)
     => state with
     {
@@ -97,10 +97,8 @@ public record GameState : State<GameState> {
 public record Score(int Value) {
   public static implicit operator int(Score score) => score.Value;
 
-  public static implicit operator Score(int score) => new Score(score);
+  public static implicit operator Score(int score) => new(score);
 }
-
-public record DiceRoll(Dice Dice);
 
 public record GameId(int Id) : AggregateId($"{Id}") {
   public static implicit operator GameId(int id) => new(id);
