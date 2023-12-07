@@ -1,8 +1,16 @@
+using System;
 using Greedy.Spa.Components;
+using Xunit.Abstractions;
 
 namespace Greedy.SpaTests.RotationCalculator;
 
 public class CalculateForShould {
+  private readonly ITestOutputHelper _logger;
+
+  public CalculateForShould(ITestOutputHelper logger) {
+    _logger = logger;
+  }
+  
   [Theory]
   [InlineData(1, 105, 0,   15)]
   [InlineData(3, 15,  255, 0)]
@@ -27,5 +35,10 @@ public class CalculateForShould {
       (x + 720) % 360,
       (y + 720) % (yExpected == 0 ? 90 : 360),
       (z + 720) % (zExpected == 0 ? 90 : 360)).Should().Be((xExpected, yExpected, zExpected));
+  }
+
+  [Fact]
+  public void DateShould() {
+    _logger.WriteLine($"{DateTime.Today.AddYears(-5).ToString("dd/MMMM/yyyy")}");
   }
 }

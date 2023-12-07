@@ -4,17 +4,25 @@ using MudBlazor;
 namespace Greedy.Spa.Components;
 
 public partial class DragabbleDice {
-  private void ItemUpdated(MudItemDropInfo<DropItem> dropItem) =>
-    dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
 
   [Parameter]
   public List<DiceValue> DiceValues { get; set; }
+  
+  [Parameter]
+  public EventCallback<MudItemDropInfo<DropItem>> OnDropCallback { get; set; }
 
   private List<DropItem> _items = new();
+  
+  private async Task ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+  {
+    dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
+    await OnDropCallback.InvokeAsync(dropItem);
+  }
 
   protected override void OnInitialized()
-    => _items = DiceValues.Select(d => new DropItem
+    => _items = DiceValues.Select((d, i) => new DropItem
     {
+      Index = i,
       Value      = d,
       Identifier = "Rolled"
     }).ToList();
@@ -31,6 +39,7 @@ public partial class DragabbleDice {
   }
 
   public class DropItem {
+    public int       Index      { get; set; }
     public DiceValue Value      { get; set; }
     public string?   Identifier { get; set; }
   }

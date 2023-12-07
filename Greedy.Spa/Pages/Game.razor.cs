@@ -1,6 +1,7 @@
 using Greedy.Spa.Components;
 using Greedy.Spa.Services;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Greedy.Spa.Pages;
 
@@ -11,6 +12,8 @@ public partial class Game {
 
   [Inject]
   public IGameService? GameService { get; set; }
+  [Inject]
+  public ILogger<Game> Logger { get; set; }
 
   public string? Values { get; set; } = "1 2 3 4 5 6";
 
@@ -33,7 +36,6 @@ public partial class Game {
     Values = Values.Trim();
   }
 
-
   protected override async Task OnInitializedAsync()
   {
     var random = new Random();
@@ -41,5 +43,10 @@ public partial class Game {
     await GameService.StartGameAsync(_gameId);
     _playerId = random.Next(0, 100);
     await GameService.JoinPlayerAsync(_gameId, _playerId, _playerName);
+  }
+
+  private void DieDropped(MudItemDropInfo<DragabbleDice.DropItem> obj)
+  {
+    Logger.LogInformation($"Die {obj.Item.Value} dropped with index: {obj.Item.Index}");
   }
 }
