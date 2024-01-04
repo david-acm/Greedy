@@ -24,7 +24,7 @@ public class GameApiWebAppFactory : WebApplicationFactory<GameService> {
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
     new ContainerBuilder()
-      .WithImage("ghcr.io/eventstore/eventstore:21.10.0-alpha-arm64v8")
+      .WithImage("ghcr.io/eventstore/eventstore")
       .WithPortBinding(1113)
       .WithPortBinding(2113)
       .WithEnvironment(Variables)

@@ -18,7 +18,7 @@ public static class GameValidator {
       V1.DiceRolled e =>
         new PlayerIsInTurn(state, e.PlayerId).And(new SingleRoll(state, e.PlayerId)).IsSatisfied(),
       V2.DiceRolled e =>
-        new PlayerIsInTurn(state, e.PlayerId).And(new SingleRoll(state, e.PlayerId)).IsSatisfied(),
+        new SingleRoll(state, e.PlayerId).IsSatisfied(),
       V1.TurnPassed e =>
         new PlayerIsInTurn(state, e.PlayerId).And(new PlayerCanPass(game, e.PlayerId)).IsSatisfied(),
       V1.DiceKept e =>

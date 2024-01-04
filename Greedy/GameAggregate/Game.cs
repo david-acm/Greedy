@@ -25,7 +25,7 @@ public class Game : Aggregate<GameState> {
   {
     var roll = Dice.FromNewRoll(
       _randomProvider,
-      GetNumberOfDiceToTrow());
+      this.GetNumberOfDiceToThrow());
 
     Apply(new V1.DiceRolled(
       rollDice.PlayerId,
@@ -37,7 +37,7 @@ public class Game : Aggregate<GameState> {
   {
     var roll = Dice.FromNewRoll(
       _randomProvider,
-      GetNumberOfDiceToTrow());
+      this.GetNumberOfDiceToThrow());
 
     Apply(new V2.DiceRolled(
       rollDice.PlayerId,
@@ -96,7 +96,7 @@ public class Game : Aggregate<GameState> {
     }
   }
 
-  private int GetNumberOfDiceToTrow() => 6 - State.DiceKept.Length;
+  private int GetNumberOfDiceToThrow() => 6 - State.DiceKept.Length;
 
   private static int GetNewTurnScore(IEnumerable<DiceValue> diceKept, int currentScore)
   {

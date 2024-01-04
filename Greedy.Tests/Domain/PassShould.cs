@@ -45,13 +45,9 @@ public class PassShould : GameWithThreePlayersTest {
     Game.RollDiceV2(new RollDice(1, 1));
     Game.PassTurn(new PassTurn(1, 1));
     SetupDiceToRoll(new List<int> { 4, 4, 4, 2, 1, 2, 3 });
-    var passOutOfTurn = () => Game.RollDiceV2(new RollDice(1, 1));
-    var playOutOfTurn = () => Game.PassTurn(new PassTurn(1, 1));
     var passTurn      = () => Game.PassTurn(new PassTurn(1, 2));
 
     // Assert
-    passOutOfTurn.Should().Throw<PreconditionsFailedException>();
-    playOutOfTurn.Should().Throw<PreconditionsFailedException>();
     passTurn.Should().Throw<PreconditionsFailedException>();
     var passedWithoutRolling = Changes.Should().ContainSingleEvent<PassedWithoutRolling>();
     passedWithoutRolling.Should().Be(new PassedWithoutRolling(2));

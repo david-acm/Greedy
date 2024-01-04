@@ -99,7 +99,6 @@ public class RollShould : GameWithThreePlayersTest {
     Game.RollDiceV2(new RollDice(1, 1));
     Game.KeepDice(new KeepDice(1, 1, new[] { One }));
 
-
     SetupDiceToRoll(new List<int> { 4, 4, 5, 2, 1 });
 
     Game.RollDiceV2(new RollDice(1, 1));
