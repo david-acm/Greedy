@@ -10,7 +10,7 @@ public class Game : Aggregate<GameState> {
   public Game() : this(default!)
   {
   }
-
+  
   public Game(IRandom? randomProvider)
   {
     _randomProvider = randomProvider ?? new DefaultRandomProvider();
