@@ -1,0 +1,50 @@
+location: eastus
+name: esdb-node1
+properties:
+  configuration:
+    activeRevisionsMode: Single
+    ingress:
+      additionalPortMappings:
+      - exposedPort: 2113
+        external: true
+        targetPort: 2113
+      - exposedPort: 1113
+        external: true
+        targetPort: 1113
+      allowInsecure: true
+      external: true
+      targetPort: 1000
+      traffic:
+      - latestRevision: true
+        weight: 100
+      transport: http
+  managedEnvironmentId: /subscriptions/7643973f-a34b-4ac2-91a9-4705285f14e6/resourceGroups/greedy_group/providers/Microsoft.App/managedEnvironments/cae-greedy-dev-eus
+  template:
+    containers:
+    - image: eventstore/eventstore:latest
+      name: node1
+      resources:
+        cpu: 0.25
+        memory: 0.5Gi
+      env:
+      - name: EVENTSTORE_CLUSTER_SIZE
+        value: 1
+      - name: EVENTSTORE_RUN_PROJECTIONS
+        value: All
+      - name: EVENTSTORE_START_STANDARD_PROJECTIONS
+        value: true
+      - name: EVENTSTORE_EXT_TCP_PORT
+        value: 1113
+      - name: EVENTSTORE_HTTP_PORT
+        value: 2113
+      - name: EVENTSTORE_INSECURE
+        value: true
+      - name: EVENTSTORE_ENABLE_EXTERNAL_TCP
+        value: true
+      - name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP
+        value: true
+    scale:
+      maxReplicas: 1
+      minReplicas: 1
+  workloadProfileName: Consumption
+type: Microsoft.App/containerApps
