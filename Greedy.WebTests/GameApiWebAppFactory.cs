@@ -21,18 +21,21 @@ public class GameApiWebAppFactory : WebApplicationFactory<GameService> {
     { "DOTNET_RUNNING_IN_CONTAINER", "true" }
   };
 
-  protected override void ConfigureWebHost(IWebHostBuilder builder)
-  {
-    new ContainerBuilder()
-      .WithImage("ghcr.io/eventstore/eventstore:21.10.0-alpha-arm64v8")
-      .WithPortBinding(1113)
-      .WithPortBinding(2113)
-      .WithEnvironment(Variables)
-      .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(2113)))
-      .WithAutoRemove(false).Build()
-      .StartAsync()
-      .GetAwaiter()
-      .GetResult();
+  protected override void ConfigureWebHost(IWebHostBuilder builder) {
+    // TODO: add configuration to decide between local (commented code) and azure database
+    // TODO: Change path to be read from the dotnet user secrets instead of it being hardcoded here
+    var path = Environment.GetEnvironmentVariable("PATH");
+    Environment.SetEnvironmentVariable("PATH", path + ":/usr/local/bin");
+    // new ContainerBuilder()
+    //   .WithImage("ghcr.io/eventstore/eventstore:21.10.0-alpha-arm64v8")
+    //   .WithPortBinding(1113)
+    //   .WithPortBinding(2113)
+    //   .WithEnvironment(Variables)
+    //   .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(2113)))
+    //   .WithAutoRemove(false).Build()
+    //   .StartAsync()
+    //   .GetAwaiter()
+    //   .GetResult();
 
     base.ConfigureWebHost(builder);
   }

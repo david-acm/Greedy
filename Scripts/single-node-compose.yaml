@@ -1,0 +1,44 @@
+version: "3.4"
+
+services:
+  setup:
+    image: eventstore/es-gencert-cli:1.0.2
+    entrypoint: bash
+    user: "1000:1000"
+    command: >
+      -c "mkdir -p ./certs && cd /certs
+      && es-gencert-cli create-ca
+      && es-gencert-cli create-node -out ./node1 -ip-addresses 127.0.0.1,172.30.240.11 -dns-names localhost
+      && es-gencert-cli create-node -out ./node2 -ip-addresses 127.0.0.1,172.30.240.12 -dns-names localhost
+      && es-gencert-cli create-node -out ./node3 -ip-addresses 127.0.0.1,172.30.240.13 -dns-names localhost
+      && find . -type f -print0 | xargs -0 chmod 666"
+    container_name: setup
+    volumes:
+      - ./certs:/certs
+    depends_on:
+      - setup
+  eventstore.db:
+    image: eventstore/eventstore:23.10.0-bookworm-slim
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=1
+      - EVENTSTORE_RUN_PROJECTIONS=All
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=true
+      - EVENTSTORE_EXT_TCP_PORT=1113
+      - EVENTSTORE_HTTP_PORT=2113
+      - EVENTSTORE_INSECURE=true
+      - EVENTSTORE_ENABLE_EXTERNAL_TCP=true
+      - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+    ports:
+      - "1113:1113"
+      - "2113:2113"
+    volumes:
+      - type: volume
+        source: eventstore-volume-data
+        target: /var/lib/eventstore
+      - type: volume
+        source: eventstore-volume-logs
+        target: /var/log/eventstore
+
+volumes:
+  eventstore-volume-data:
+  eventstore-volume-logs:

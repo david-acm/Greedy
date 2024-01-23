@@ -7,41 +7,39 @@ properties:
       - exposedPort: 2113
         external: true
         targetPort: 2113
-      allowInsecure: true
+      allowInsecure: false
       external: true
       targetPort: 2113
+      exposedPort: 2113
       traffic:
       - latestRevision: true
         weight: 100
-      transport: http
+      transport: tcp
+      allowCredentials: true
   template:
     containers:
     - image: eventstore/eventstore:23.10.0-bookworm-slim
-      name: esdb
+      name: secure-esdb
       volumeMounts:
       - mountPath: "./certs"
         volumeName: certs
       env:
-      - name: EVENTSTORE_INT_IP
-        value: 172.30.240.11
-      - name: EVENTSTORE_ADVERTISE_HOST_TO_CLIENT_AS
-        value: 127.0.0.1
-      - name: EVENTSTORE_ADVERTISE_HTTP_PORT_TO_CLIENT_AS
-        value: 2113
-      - name: EVENTSTORE_ADVERTISE_TCP_PORT_TO_CLIENT_AS
-        value: 111z
       - name: EVENTSTORE_CLUSTER_SIZE
         value: 1
       - name: EVENTSTORE_RUN_PROJECTIONS
         value: All
-      - name: EVENTSTORE_DISCOVER_VIA_DNS
-        value: true
-      - name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP
+      - name: EVENTSTORE_START_STANDARD_PROJECTIONS
         value: true
       - name: EVENTSTORE_EXT_TCP_PORT
         value: 1113
       - name: EVENTSTORE_HTTP_PORT
         value: 2113
+      - name: EVENTSTORE_INSECURE
+        value: false
+      - name: EVENTSTORE_ENABLE_EXTERNAL_TCP
+        value: true
+      - name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP
+        value: true
       - name: EVENTSTORE_TRUSTED_ROOT_CERTIFICATES_PATH
         value: /certs/ca
       - name: EVENTSTORE_CERTIFICATE_FILE
@@ -71,7 +69,7 @@ properties:
         echo "4. cat" &&
         cat ~/localcerts/ca/ca.crt &&
         echo "5. create-node (path)" &&
-        es-gencert-cli create-node -ca-certificate ~/localcerts/ca/ca.crt -out ./node1 -ip-addresses 127.0.0.1,172.30.240.11 -dns-names https://esdb.grayglacier-cd091ed2.eastus.azurecontainerapps.io && 
+        es-gencert-cli create-node -ca-certificate ~/localcerts/ca/ca.crt -out ./node1 -ip-addresses 4.157.224.169 -dns-names secure-node--w7bt0vq.grayglacier-cd091ed2.eastus.azurecontainerapps.io && 
         echo "6. Copy to ./certs" &&
         cd ../.. &&
         pwd &&

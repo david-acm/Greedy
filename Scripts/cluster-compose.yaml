@@ -4,7 +4,7 @@ services:
   setup:
     image: eventstore/es-gencert-cli:1.0.2
     entrypoint: bash
-    user: "1000:1000"
+    user: root
     command: >
       -c "mkdir -p ./certs && cd /certs
       && es-gencert-cli create-ca
@@ -17,7 +17,7 @@ services:
       - ./certs:/certs
 
   node1.eventstore: &template
-    image: eventstore/eventstore:23.10.0-bookworm-slim
+    image: eventstore/eventstore:21.10.10-alpha-arm64v8
     container_name: node1.eventstore
     env_file:
       - vars.env

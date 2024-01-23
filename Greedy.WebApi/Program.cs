@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration.Extensions;
 
 const string MyAllowSpecificOrigins = "MyAllowSpecificOrigins";
-const string esdbConnectionString   = "esdb://localhost:2113?tls=false";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +20,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCommandService<GameService, Game>();
-builder.Services.AddEventStoreClient(esdbConnectionString);
 builder.Services.AddAggregateStore<EsdbEventStore>();
 
 IConfigurationRefresher refresher = default!;
@@ -32,11 +30,12 @@ var appConfigEndpoint = configuration.GetValue<string>("AppConfigEndpoint");
 builder.Configuration.AddAzureAppConfiguration(options =>
   {
     options.Connect(new Uri(appConfigEndpoint), new DefaultAzureCredential());
-    options.Select(KeyFilter.Any, "local");
+    options.Select("greedy:*", "local");
+    options.TrimKeyPrefix("greedy:");
     options.ConfigureRefresh(refresh =>
     {
       refresh.SetCacheExpiration(TimeSpan.FromDays(1));
-      refresh.Register("Sentinel", refreshAll: true);
+      refresh.Register("sentinel", refreshAll: true);
     });
     options.ConfigureKeyVault(kv =>
     {
@@ -46,6 +45,8 @@ builder.Configuration.AddAzureAppConfiguration(options =>
   });
 
 await RegisterRefreshEventHandlerAsync(configuration, refresher);
+var esdbConnString = configuration.GetConnectionString("Esdb");
+builder.Services.AddEventStoreClient(esdbConnString);
 
 builder.Services.AddCors(options =>
 {
@@ -57,7 +58,7 @@ var app = builder.Build();
 
 var logger = app.Services.GetService<ILogger<Program>>();
 logger?.LogInformation($"Using configuration sentinel version: {configuration["Sentinel"]}");
-logger?.LogInformation($"Using service bus connection: {configuration["ConnectionStrings:ServiceBus"]}");
+logger?.LogInformation($"Using esdb connection string: {esdbConnString}");
 
  app.UseCors(MyAllowSpecificOrigins);
 
@@ -112,10 +113,10 @@ return;
 async Task RegisterRefreshEventHandlerAsync(IConfiguration config, IConfigurationRefresher configRefresher) {
   await refresher.TryRefreshAsync();
   
-  var serviceBusConnectionString = config.GetConnectionString("ServiceBus");
-  var serviceBusQueue            = config.GetValue<string>("ServiceBusQueue");
-  var serviceBusClient           = new ServiceBusClient(serviceBusConnectionString);
-  var serviceBusProcessor        = serviceBusClient.CreateProcessor(serviceBusQueue);
+  var serviceBusEndpoint  = config.GetValue<string>("ConfigServiceBusEndpoint");
+  var serviceBusQueue     = config.GetValue<string>("ConfigServiceBusQueue");
+  var serviceBusClient    = new ServiceBusClient(serviceBusEndpoint, new DefaultAzureCredential());
+  var serviceBusProcessor = serviceBusClient.CreateProcessor(serviceBusQueue);
 
   serviceBusProcessor.ProcessMessageAsync += (processMessageEventArgs) =>
   {

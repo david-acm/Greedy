@@ -1,0 +1,43 @@
+properties:
+  environmentId: "/subscriptions/7643973f-a34b-4ac2-91a9-4705285f14e6/resourceGroups/greedy_group/providers/Microsoft.App/managedEnvironments/cae-greedy-eus-dev"
+  workloadProfileName: Consumption
+  configuration:
+    ingress:
+      allowInsecure: true
+      external: true
+      targetPort: 2113
+      traffic:
+      - latestRevision: true
+        weight: 100
+      transport: http
+      allowCredentials: true
+  template:
+    containers:
+    - image: eventstore/eventstore:23.10.0-bookworm-slim
+      name: single-esdb
+      env:
+      - name: EVENTSTORE_CLUSTER_SIZE
+        value: 1
+      - name: EVENTSTORE_RUN_PROJECTIONS
+        value: All
+      - name: EVENTSTORE_START_STANDARD_PROJECTIONS
+        value: true
+      - name: EVENTSTORE_EXT_TCP_PORT
+        value: 1113
+      - name: EVENTSTORE_HTTP_PORT
+        value: 2113
+      - name: EVENTSTORE_INSECURE
+        value: true
+      - name: EVENTSTORE_ENABLE_EXTERNAL_TCP
+        value: true
+      - name: EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP
+        value: true
+    scale:
+      maxReplicas: 1
+      minReplicas: 1
+      rules:
+      - name: httpscalingrule
+        custom:
+          type: http
+          metadata:
+            concurrentRequests: '50'
