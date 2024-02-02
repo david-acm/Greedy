@@ -14,4 +14,4 @@ The game is developed as a .Net WebApi and Blazor server apps. You will find:
 
 # Contributing
 
-Feel free to add any issues and or requests features.
+Feel free to add any issues and or requests features. You can find the work to be done on the project here.
